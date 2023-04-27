@@ -15,7 +15,7 @@ CREATE TABLE user (
 --conto delle mosse dei singoli giocatori e totali, conto anche delle pedine rimanenti ai due giocatori
 --QUANDO pieces di un giocatore arriva a zero, allora vince l'altro
 CREATE TABLE game (
-    idgame INT PRIMARY KEY AUTO_INCREMENT,
+    id_game INT PRIMARY KEY AUTO_INCREMENT,
     player1 VARCHAR(30) NOT NULL,
     player2 VARCHAR(30) NOT NULL,
     inprogress BOOLEAN NOT NULL,
@@ -42,8 +42,8 @@ CREATE TABLE game (
 CREATE TABLE move (
     id_game INT NOT NULL,
     id INT PRIMARY KEY AUTO_INCREMENT,
-    player1 VARCHAR(30) NOT NULL,
-    player2 VARCHAR(30) NOT NULL,
+    id_player VARCHAR(30) NOT NULL,
+    id_pezzo VARCHAR(3) NOT NULL,
     pezzo INT NOT NULL,
     iswhite BOOLEAN NOT NULL,
     dama BOOLEAN NOT NULL,
@@ -52,13 +52,15 @@ CREATE TABLE move (
     xposfin INT NOT NULL,
     yposfin INT NOT NULL,
     hamangiato BOOLEAN NOT NULL,
-    FOREIGN KEY (id_game) REFERENCES game(idgame)
+    FOREIGN KEY (id_game) REFERENCES game(id_game),
+    FOREIGN KEY (id_player) REFERENCES user(username),
+    FOREIGN KEY (id_pezzo) REFERENCES pezzi(id_pedone)
 )
 --A inizio game popolare sempre la tabella dei pezzi con le posizioni iniziali fisse, WIP lista mosse possibili
 --se nessun pezzo di una fazione può muoversi, allora vince l'altra fazione
 CREATE TABLE pezzi (
     id_game INT NOT NULL,
-    idpedone INT PRIMARY KEY,
+    id_pedone VARCHAR(3) PRIMARY KEY,
     iswhite BOOLEAN NOT NULL,
     dama BOOLEAN NOT NULL,
     xpos INT,
