@@ -5,6 +5,7 @@ class blocco{
     r: number
     c: number
     occupied: boolean
+    //occupiedy by mostra il pezzo che occupa la casella
     occupiedby: string
     faction: string
     constructor(r:number, c: number, occupied:boolean,occupiedby: string,faction:string){
