@@ -81,7 +81,7 @@ export const Users = Database.connection().define('users', {
         allowNull: false
     },
     token: {
-        type: DataTypes.DECIMAL,
+        type: DataTypes.DOUBLE(25,3),
         allowNull: false
 }
 },
@@ -92,7 +92,7 @@ export const Users = Database.connection().define('users', {
 });
 export const Game = Database.connection().define('game', {
     id_game: {
-        type: DataTypes.STRING(100),
+        type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true
     },
@@ -114,40 +114,48 @@ export const Game = Database.connection().define('game', {
     },
     date_end: {
         type: DataTypes.DATE,
-        allowNull: false
+        allowNull: true
     },
     player_turn: {
         type: DataTypes.STRING(100),
         allowNull: false
     },
     moves1: {
-        type: DataTypes.SMALLINT,
+        type: DataTypes.INTEGER,
         allowNull: false
     },
     moves2: {
-        type: DataTypes.SMALLINT,
+        type: DataTypes.INTEGER,
         allowNull: false
     },
     movescount: {
-        type: DataTypes.SMALLINT,
+        type: DataTypes.INTEGER,
+        allowNull: false
+    },
+    movesw: {
+        type: DataTypes.INTEGER,
         allowNull: false
     },
     winner: {
         type: DataTypes.STRING(100),
     },
     duration: {
-        type: DataTypes.FLOAT,
+        type: DataTypes.DOUBLE(25,2),
     },
     pieces1: {
-        type: DataTypes.SMALLINT,
+        type: DataTypes.INTEGER,
         allowNull: false
     },
     pieces2: {
-        type: DataTypes.SMALLINT,
+        type: DataTypes.INTEGER,
         allowNull: false
     },
-    grid_dim: {
-        type: DataTypes.SMALLINT,
+    abbandono1:{
+        type: DataTypes.BOOLEAN,
+        allowNull: false
+    },
+    abbandono2:{
+        type: DataTypes.BOOLEAN,
         allowNull: false
     },
     board: {
@@ -205,7 +213,7 @@ export const Pezzo = Database.connection().define('pezzi', {
         allowNull: false
     },
     id_pezzo: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(3),
         primaryKey: true
     },
     is_white: {
@@ -218,19 +226,19 @@ export const Pezzo = Database.connection().define('pezzi', {
     },
     x_pos: {
         type: DataTypes.INTEGER,
-        allowNull: false
+        allowNull: true
     },
     y_pos: {
         type: DataTypes.INTEGER,
-        allowNull: false
+        allowNull: true
     },
     lista_coppie_posizioni_possibili: {
         type: DataTypes.JSON,
-        allowNull: false
+        allowNull: true
     },
     has_Eaten: {
         type: DataTypes.BOOLEAN,
-        allowNull: false
+        allowNull: true
     },
     been_Eaten: {
         type: DataTypes.BOOLEAN,
@@ -252,11 +260,11 @@ export const Mossa = Database.connection().define('move', {
         primaryKey: true
     },
     id_player: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(100),
         allowNull: false
     },
     id_pezzo: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.STRING(3),
         allowNull: false
     },
     is_white: {
