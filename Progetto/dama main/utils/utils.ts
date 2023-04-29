@@ -1,13 +1,37 @@
-import * as models from '../model/models';
+import * as models from '../models/models';
 import fs from 'fs';
 //fare npm install pdfkit
 const PDFDocument = require('pdfkit');
 
 /**
 * Update leaderboard data for the winning player
-* @param email 
+* @param username 
 */
-export async function updateLeaderboardWin(email: string): Promise<void> {
+//mi faccio restituire tutti i giochi terminati in cui username è il vincitore
+//come memorizzare le mosse del giocatore vincitore
+//devo fare in modo di memorizzare moves1 se vince player1 e moves2 se vince player2
+export async function getAllFinishedGames(username): Promise<any> {
+    let games: any = await models.Game.findAll({
+            where: {
+                in_progress: false,
+                winner: username
+            }
+    });
+
+    return games;
+}
+export async function countGames(username): Promise<any> {
+    let games: any = await models.Game.findAll({
+            where: {
+                in_progress: false,
+                winner: username
+            }
+    });
+
+    return games;
+}
+
+export async function updateLeaderboardWin(username: string): Promise<void> {
     let leaderboard: any;
     let numMatch: number;
     let numMatchWin: number;
@@ -15,30 +39,57 @@ export async function updateLeaderboardWin(email: string): Promise<void> {
     let meanMoves: any;
     let numD_MatchWin: number;
     let numD_MatchLoss: number;
-
+    //cerco le mosse totali fatte dal giocatore
+    
+    
     leaderboard = await models.Leaderboard.findByPk(username);
-
+    
+    //se la classifica non è mai stata creata viene creata e vengono inseriti i valori dei primi risultati
+    //vedere come inserire l'abbandono (probabilmente boolean su games)
+    //caso di vittoria classica
     if(!leaderboard) {
-        models.Leaderboard.create({
-            username: username,
-            total_matches: 1,
-            wins: 1,
-            losses: 0,
-            win_ratio: 1,
-        });
+        if(!abbandono){
+            models.Leaderboard.create({
+                username: username,
+                moves_mean: 1,//vedere come calcolare la media
+                wins: 1,
+                losses: 0,
+                matches: 1,
+                dWin: 0,
+                dLosses: 0,
+            });
+        }
+        else{
+    //caso di vittoria per abbandono da parte dell'avversario
+            models.Leaderboard.create({
+                username: username,
+                moves_mean: 1, //stesso problema di sopra
+                wins: 0,
+                losses: 0,
+                matches: 1,
+                dWin: 1,
+                dLosses: 0,
+            });
+        }
+        
     }
     else {
         numMatch = leaderboard.total_matches + 1;
-        numMatchWin = leaderboard.wins + 1;
-        winRatio = Math.round((numMatchWin/numMatch + Number.EPSILON) * 100) / 100;
-
-        Leaderboard.update({
-            total_matches: numMatch,
+        if (!abbandono){
+            numMatchWin = leaderboard.wins + 1;
+        }
+        else{
+            numD_MatchWin=leaderboard.dWin+1;
+        }
+    
+        
+        models.Leaderboard.update({
+            matches: numMatch,
             wins: numMatchWin,
-            win_ratio: winRatio
+            dWin: numD_MatchWin,
         },
         {
-            where: { email: email }
+            where: { username: username }
         });
     }
 }
@@ -46,37 +97,50 @@ export async function updateLeaderboardWin(email: string): Promise<void> {
 
 /**
 * Update leaderboard data for the losing player
-* @param email -> loser email
+* @param username -> loser email
 */
-export async function updateLeaderboardLose(email: string): Promise<void> {
+export async function updateLeaderboardLose(username: string): Promise<void> {
     let leaderboard: any;
     let numMatch: number;
     let numMatchLose: number;
     let winRatio: number;
 
-    leaderboard = await Leaderboard.findByPk(email);
+    leaderboard = await models.Leaderboard.findByPk(username);
 
     if(!leaderboard) {
-        Leaderboard.create({
-            email: email,
-            total_matches: 1,
-            wins: 0,
-            losses: 1,
-            win_ratio: 0
-        });
+        if (!abbandono){
+            models.Leaderboard.create({
+                username: username,
+                moves_mean: 0,
+                wins: 0,
+                losses: 1,
+                matches: 1,
+                dWin: 1,
+                dLosses: 0
+            });
+        else{
+            models.Leaderboard.create({
+                username: username,
+                moves_mean: 0,
+                wins: 0,
+                losses: 0,
+                matches: 1,
+                dWin: 0,
+                dLosses: 1
+            });
+        }
     }
     else {
         numMatch = leaderboard.total_matches + 1;
         numMatchLose = leaderboard.losses + 1;
-        winRatio = Math.round((1 - numMatchLose/numMatch + Number.EPSILON) * 100) / 100;
 
-        Leaderboard.update({
-            total_matches: numMatch,
-            losses: numMatchLose,
-            win_ratio: winRatio
+        models.Leaderboard.update({
+            matches: numMatch,
+            losses: numMatchWin,
+            dlosses: numD_MatchWin
         },
         {
-            where: { email: email }
+            where: { username: username }
         });
     }
 }
