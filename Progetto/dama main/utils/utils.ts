@@ -1,57 +1,30 @@
 import * as models from '../models/models';
-import fs from 'fs';
+import fs, { promises } from 'fs';
+import Sequelize from 'sequelize';
+import { Database } from "../connection/connection";
 //fare npm install pdfkit
 const PDFDocument = require('pdfkit');
+
 
 /**
 * Update leaderboard data for the winning player
 * @param username 
 */
-//mi faccio restituire tutti i giochi terminati in cui username è il vincitore
-//come memorizzare le mosse del giocatore vincitore
-//devo fare in modo di memorizzare moves1 se vince player1 e moves2 se vince player2
-export async function getAllFinishedGames(username): Promise<any> {
-    let games: any = await models.Game.findAll({
-            where: {
-                in_progress: false,
-                winner: username
-            }
-    });
 
-    return games;
-}
-export async function countGames(username): Promise<any> {
-    let games: any = await models.Game.findAll({
-            where: {
-                in_progress: false,
-                winner: username
-            }
-    });
-
-    return games;
-}
 
 export async function updateLeaderboardWin(username: string): Promise<void> {
     let leaderboard: any;
     let numMatch: number;
-    let numMatchWin: number;
-    let numMatchLoss: number;
-    let meanMoves: any;
-    let numD_MatchWin: number;
-    let numD_MatchLoss: number;
-    //cerco le mosse totali fatte dal giocatore
-    
-    
+
+    const [results, metadata] = await Database.connection().query("SELECT AVG(movesw) FROM game WHERE winner="+ username +" GROUP BY winner"); // Raw query - use array destructuring
+    const mean=results[0]
     leaderboard = await models.Leaderboard.findByPk(username);
-    
-    //se la classifica non è mai stata creata viene creata e vengono inseriti i valori dei primi risultati
-    //vedere come inserire l'abbandono (probabilmente boolean su games)
-    //caso di vittoria classica
+
     if(!leaderboard) {
-        if(!abbandono){
+        if(!(leaderboard.abbandono1 || leaderboard.abbandono2)){
             models.Leaderboard.create({
                 username: username,
-                moves_mean: 1,//vedere come calcolare la media
+                moves_mean: mean,
                 wins: 1,
                 losses: 0,
                 matches: 1,
@@ -63,7 +36,7 @@ export async function updateLeaderboardWin(username: string): Promise<void> {
     //caso di vittoria per abbandono da parte dell'avversario
             models.Leaderboard.create({
                 username: username,
-                moves_mean: 1, //stesso problema di sopra
+                moves_mean: mean,
                 wins: 0,
                 losses: 0,
                 matches: 1,
@@ -74,26 +47,30 @@ export async function updateLeaderboardWin(username: string): Promise<void> {
         
     }
     else {
-        numMatch = leaderboard.total_matches + 1;
-        if (!abbandono){
-            numMatchWin = leaderboard.wins + 1;
+        numMatch = leaderboard.matches + 1;
+        if (!(leaderboard.abbandono1 || leaderboard.abbandono2)){
+            models.Leaderboard.update({
+                matches: numMatch,
+                wins: leaderboard.wins + 1
+            },
+            {
+                where: { username: username }
+            });
+            
         }
         else{
-            numD_MatchWin=leaderboard.dWin+1;
-        }
-    
+            models.Leaderboard.update({
+                matches: numMatch,
+                dwins: leaderboard.dWin+1,
+                
+            },
+            {
+                where: { username: username }
+            });
         
-        models.Leaderboard.update({
-            matches: numMatch,
-            wins: numMatchWin,
-            dWin: numD_MatchWin,
-        },
-        {
-            where: { username: username }
-        });
-    }
+        }
 }
-
+}
 
 /**
 * Update leaderboard data for the losing player
@@ -106,18 +83,21 @@ export async function updateLeaderboardLose(username: string): Promise<void> {
     let winRatio: number;
 
     leaderboard = await models.Leaderboard.findByPk(username);
-
+//in caso la leaderboard non sia mai stata creata
     if(!leaderboard) {
-        if (!abbandono){
+        //sconfitta onorevole
+        if ((!(leaderboard.abbandono1 || leaderboard.abbandono2))){
             models.Leaderboard.create({
                 username: username,
                 moves_mean: 0,
                 wins: 0,
                 losses: 1,
                 matches: 1,
-                dWin: 1,
-                dLosses: 0
+                dwins: 1,
+                dlosses: 0
             });
+        }
+        //rage quit
         else{
             models.Leaderboard.create({
                 username: username,
@@ -125,23 +105,34 @@ export async function updateLeaderboardLose(username: string): Promise<void> {
                 wins: 0,
                 losses: 0,
                 matches: 1,
-                dWin: 0,
-                dLosses: 1
+                dwins: 0,
+                dlosses: 1
             });
         }
     }
     else {
+        //caso di classifica già esistente, aggiorno solo le statistiche del giocatore dlosses: numD_MatchWin
         numMatch = leaderboard.total_matches + 1;
-        numMatchLose = leaderboard.losses + 1;
-
-        models.Leaderboard.update({
-            matches: numMatch,
-            losses: numMatchWin,
-            dlosses: numD_MatchWin
-        },
-        {
-            where: { username: username }
-        });
+        if ((!(leaderboard.abbandono1 || leaderboard.abbandono2))){
+            models.Leaderboard.update({
+                matches: numMatch,
+                losses: leaderboard.losses + 1,
+                
+            },
+            {
+                where: { username: username }
+            });
+        }
+        else{
+            models.Leaderboard.update({
+                matches: numMatch,
+                dlosses: leaderboard.dlosses+1,
+                
+            },
+            {
+                where: { username: username }
+            });
+        }
     }
 }
 
