@@ -62,7 +62,7 @@ class blocco{
        return this.damiera
     }
 }
-export const Users = sequelize.define('users', {
+export const Users = Database.connection().define('users', {
     email: {
         type: DataTypes.STRING(100),
         primaryKey: true
@@ -75,6 +75,7 @@ export const Users = sequelize.define('users', {
         type: DataTypes.BOOLEAN,
         allowNull: false
     },
+    //un boolean è tradotto in SQL come TINY INT, un intero ad una cifra e quindi 0 oppure 1
     isplaying: {
         type: DataTypes.BOOLEAN,
         allowNull: false
@@ -89,7 +90,7 @@ export const Users = sequelize.define('users', {
     timestamps: false,
     freezeTableName: true
 });
-export const Game = sequelize.define('game', {
+export const Game = Database.connection().define('game', {
     id_game: {
         type: DataTypes.STRING(100),
         primaryKey: true,
@@ -163,7 +164,7 @@ export const Game = sequelize.define('game', {
     timestamps: false,
     freezeTableName: true
 });
-export const Leaderboard = sequelize.define('leaderboard', {
+export const Leaderboard = Database.connection().define('leaderboard', {
     username: {
         type: DataTypes.STRING(100),
         primaryKey: true
@@ -198,9 +199,9 @@ export const Leaderboard = sequelize.define('leaderboard', {
     timestamps: false,
     freezeTableName: true
 });
-export const Pezzo = sequelize.define('pezzi', {
+export const Pezzo = Database.connection().define('pezzi', {
     id_game: {
-        type: DataTypes.INT,
+        type: DataTypes.INTEGER,
         allowNull: false
     },
     id_pezzo: {
@@ -241,13 +242,13 @@ export const Pezzo = sequelize.define('pezzi', {
     timestamps: false,
     freezeTableName: true
 });
-export const Mossa = sequelize.define('move', {
+export const Mossa = Database.connection().define('move', {
     id_game: {
-        type: DataTypes.INT,
+        type: DataTypes.INTEGER,
         allowNull: false
     },
     id: {
-        type: DataTypes.INT,
+        type: DataTypes.INTEGER,
         primaryKey: true
     },
     id_player: {
@@ -255,7 +256,7 @@ export const Mossa = sequelize.define('move', {
         allowNull: false
     },
     id_pezzo: {
-        type: DataTypes.INT,
+        type: DataTypes.INTEGER,
         allowNull: false
     },
     is_white: {
@@ -267,19 +268,19 @@ export const Mossa = sequelize.define('move', {
         allowNull: false
     },
     xpos_in: {
-        type: DataTypes.INT,
+        type: DataTypes.INTEGER,
         allowNull: false
     },
     ypos_in: {
-        type: DataTypes.INT,
+        type: DataTypes.INTEGER,
         allowNull: false
     },
     xpos_fin: {
-        type: DataTypes.INT,
+        type: DataTypes.INTEGER,
         allowNull: false
     },
     ypos_fin: {
-        type: DataTypes.INT,
+        type: DataTypes.INTEGER,
         allowNull: false
     },
     ha_mangiato: {
@@ -292,4 +293,3 @@ export const Mossa = sequelize.define('move', {
     timestamps: false,
     freezeTableName: true
 });
-
