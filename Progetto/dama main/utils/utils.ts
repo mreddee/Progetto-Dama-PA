@@ -203,3 +203,41 @@ export function returnGridState(shipName: string, grid: any, gridDim: number) {
     }
     return gridState
 }
+//Visualizzazione classifica giocatori in ordine crescente o decrescente
+export async function returnLeaderboard(crescente: boolean){
+    if (crescente){
+        const [results, metadata] = await Database.connection().query("SELECT * FROM leaderboard ORDER BY ASC(wins+dwins)");
+        return results;
+    }else
+    {
+        const [results, metadata] = await Database.connection().query("SELECT * FROM leaderboard ORDER BY DESC(wins+dwins)");
+        return results;
+    }
+    
+}
+/**Restituisce i log della partita dell'utente
+ * @param id_player 
+ * @param datain
+ * @param dataf
+ * @returns
+ */
+
+
+//restituire i log delle partite dell'utente richiedente con la possibilità di cercarle per certi intervalli di tempo
+export async function returnMatchesLog(id_player: string, datain?: Date, dataf?:Date):Promise<any>{
+    //caso in cui non ho specificato le date e mi riporta lo storico di tutte le partite
+    if (typeof datain==undefined && dataf==undefined){
+        const [results,metadata]=await Database.connection().query("SELECT * FROM game WHERE player1="+id_player+"OR player2="+id_player+" AND in_progress=false");
+        return results;
+    }
+    //caso in cui specifico solo la data inferiore
+    if (typeof datain!==undefined && dataf==undefined){
+        const [results,metadata]=await Database.connection().query("SELECT * FROM game WHERE player1="+id_player+"OR player2="+id_player+" AND in_progress=false AND date_start>="+datain);
+        return results;
+    }
+    //caso in cui specifico un intervallo di tempo di interesse
+    if (typeof datain!==undefined && dataf!==undefined){
+        const [results,metadata]=await Database.connection().query("SELECT * FROM game WHERE player1="+id_player+"OR player2="+id_player+" AND in_progress=false AND date_start>="+datain+"AND date_start<"+dataf);
+        return results;
+    }
+}
