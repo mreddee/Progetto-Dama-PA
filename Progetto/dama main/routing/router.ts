@@ -35,7 +35,7 @@ app.post('/create_game',
     ErrorHandlerMiddleware.errorHandler,
     (req: any, res: any) => {
         //da fare
-        Controller.createGame(player1, player2, moves1, moves2, duration, pieces1, pieces2, dimensione, res).then(() => {
+        Controller.createGame(req.player1, req.player2, req.moves1, req.moves2, req.duration, req.pieces1, req.pieces2, req.dimensione, res).then(() => {
             console.log("Partita creata!");
         })
     }
