@@ -23,7 +23,7 @@ export async function createGame(player1: string,
     let logMoves: any={
         "moves": []
     };
-    var campo: Object = utils.gridInitialize(dimensione);
+    var campo: string = new utils.Damiera(dimensione).damieraToJSON();
     const todayDate = new Date().toISOString().slice(0, 10);
     //da definire il body
     try {
@@ -49,14 +49,24 @@ export async function createGame(player1: string,
     });
         res.status(200).json({
             status: 200,
-            player1: player1, 
-            player2: player2, 
-            game_status: gameStatus, 
-            player_turn: player1, 
-            grid_dim: gridDim, 
-            game_date: todayDate
+            player1: player1,
+            player2: player2,
+            in_progress: true,
+            date_start: todayDate,
+            player_turn: player1,
+            moves1: moves1,
+            moves2: moves2,
+            duration: duration,
+            pieces1: pieces1,
+            pieces2: pieces2,
+            abbandono1: false,
+            abbandono2: false,
+            //
+            dimensione: dimensione,
+            board: campo,
+            log_mosse: logMoves
         }),
-    }
+    
     catch(error){
         controllerErrors(ErrorEnum.ErrServer, error, res),
     }

@@ -3,7 +3,7 @@ import { DataTypes, Sequelize } from 'sequelize';
 //classe usata solo per generare le singole celle della damiera
 //conterrà la posizione di riga e colonna nella damiera, dira' se e' occupata, e da quale pezzo, inseriamo anche la fazione di appartenenza del pezzo che la occupa
 //assegno b per bianco e n per nero
-class blocco{
+export class blocco{
     r: number
     c: number
     occupied: boolean
