@@ -4,12 +4,12 @@ DROP TABLE IF EXISTS game;
 DROP TABLE IF EXISTS user;
 -- Tabella utente: email chiave primaria, isadmin valore booleano per indicare il suo ruolo e isplaying boolean per controllare se sta già giocando o no
 -- token indica i token che ha nel suo account 
-CREATE TABLE public.user (
-    email VARCHAR(30) PRIMARY KEY,
-    username VARCHAR(30) PRIMARY KEY,
+CREATE TABLE public.users (
+    email VARCHAR(100) PRIMARY KEY,
+    username VARCHAR(100) PRIMARY KEY,
     isadmin BOOLEAN NOT NULL,
     isplaying BOOLEAN NOT NULL,
-    token DOUBLE(25,2) NOT NULL,
+    token DOUBLE(25,3) NOT NULL
 );
 --Inserisco per game il suo id, i giocatori, boolean per vedere se è finita o meno, date inizio e fine per calcolare durata (WIP)
 --conto delle mosse dei singoli giocatori e totali, conto anche delle pedine rimanenti ai due giocatori
@@ -18,22 +18,23 @@ CREATE TABLE public.user (
 --aggiunto due booleani di abbandono: abb1 se p1 abbandona abb2 per p2
 CREATE TABLE public.game (
     id_game INT PRIMARY KEY AUTO_INCREMENT,
-    player1 VARCHAR(30) NOT NULL,
-    player2 VARCHAR(30) NOT NULL,
+    player1 VARCHAR(100) NOT NULL,
+    player2 VARCHAR(100) NOT NULL,
     in_progress BOOLEAN NOT NULL,
     date_start DATE NOT NULL,
-    date_end TIMESTAMP DEFAULT NULL WHEN (IF(winner IS NULL,TRUE, FALSE)),
-    player_turn VARCHAR(30) NOT NULL,
+    date_end DATE,
+    player_turn VARCHAR(100) NOT NULL,
     moves1 INT NOT NULL,
     moves2 INT NOT NULL,
-    movescount INT moves1+moves2,
-    movesw INT GENERATED ALWAYS AS (SELECT moves1 FROM game where winner=player1 OR SELECT moves2 WHERE winner=player2),
-    winner VARCHAR(30),
-    duration DOUBLE(25,2) GENERATED ALWAYS AS ((date_end-date_start) WHEN (IF (date_end IS NOT NULL, TRUE, FALSE))),
+    movescount INT,
+    movesw INT,
+    winner VARCHAR(100),
+    duration DOUBLE(25,2),
     pieces1 INT NOT NULL,
     pieces2 INT NOT NULL,
     abbandono1 BOOLEAN,
     abbandono2 BOOLEAN,
+    dimensione INT NOT NULL,
     board JSON,
     log_mosse JSON,
     CONSTRAINT pieces1_check  CHECK (pieces1>=0 AND pieces1<=12),
@@ -49,7 +50,7 @@ CREATE TABLE public.game (
 CREATE TABLE public.move (
     id_game INT NOT NULL,
     id INT PRIMARY KEY,
-    id_player VARCHAR(30) NOT NULL,
+    id_player VARCHAR(100) NOT NULL,
     id_pezzo VARCHAR(3) NOT NULL,
     iswhite BOOLEAN NOT NULL,
     dama BOOLEAN NOT NULL,
@@ -72,15 +73,15 @@ CREATE TABLE public.pezzi (
     x_pos INT,
     y_pos INT,
     lista_coppie_posizioni_possibili JSON,
-    has_Eaten BOOLEAN NOT NULL,
+    has_Eaten BOOLEAN,
     been_Eaten BOOLEAN NOT NULL,
     FOREIGN KEY (id_game) REFERENCES game(idgame)
 )
 --NUmero medio mosse per vincere, numero partite perse, numero partite giocate, numero partite vinte per abbandono e numero partite perse per abbandono
 --ordinamento crescente e decrescente
 CREATE TABLE public.leaderboard(
-    username VARCHAR(30) PRIMARY KEY ,
-    moves_mean INT GENERATED AS (SELECT AVG(game.movesw) FROM game WHERE game.winner=leaderboard.username),
+    username VARCHAR(100) PRIMARY KEY ,
+    moves_mean FLOAT NOT NULL,
     wins INT NOT NULL,
     losses INT NOT NULL,
     matches INT NOT NULL,

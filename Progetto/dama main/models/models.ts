@@ -18,50 +18,76 @@ class blocco{
     }
 
 }
-//la classe damiera verra' usata per generare il campo da gioco, con il constructor genero il campo e lo popolo con le posizioni iniziali dei pezzi
-//per capire il significato degli if, si osservi l'immagine di damieraitaliana.png nella repository,
-//si osserva che le pedine inizialmente occupano per righe pari posti a colonne pari e per righe dispari colonna dispari
-//il k ci serve per posizionare le specifiche pedine, arrivato a riga 3 sappiamo che abbiamo finito di posizionare i neri, passeremo a riga 5 i bianchi
-//che seguono lo stesso pattern posizionale, le posizioni restanti sono lasciate vuote
-    export class Damiera extends blocco{
-    private damiera: blocco[][]
-    private numRighe: number;
-    private numCol: number;
-    private pezziNeri: Array<string>;
-    private pezziBianchi: Array<string>;
-    constructor(r:number, c:number,occupied:boolean,occupiedby:string,faction:string,Damiera: blocco[][],numRighe: number,numCol:number,pezziNeri: string, pezziBianchi: string){
-        super(r,c,occupied,occupiedby,faction)
-        this.damiera=[];
-        this.numRighe=7;
-        this.numCol=7;
-        this.pezziNeri=["1N","2N","3N","4N","5N","6N","7N","8N","9N","10N","11N","12N"];
-        this.pezziBianchi=["1B","2B","3B","4B","5B","6B","7B","8B","9B","10B","11B","12B"];
-        let k=0;
-        for(let i = 0; i < numRighe; i++){
-            this.damiera[i] = [];
-            if (i==3) {k=0}
-            for(let j = 0; j < numCol; j++){
-                    if ((i<3 && i%2==0 && j%2==0)||(i<3 && i%2!=0 && j%2!=0)){
-                        this.damiera[i][j] = new blocco(i,j,true,pezziNeri[k],"N");
-                        k++;
-                    }
-                    if ((i>=5 && i%2==0 && j%2==0)||(i>=5 && i%2!=0 && j%2!=0)){
-                        this.damiera[i][j] = new blocco(i,j,true,pezziBianchi[k],"B");
-                        k++;
-                    }
-                    else{
-                        this.damiera[i][j] = new blocco(i,j,false,"","");
-                    }
-            
-                    
-            }
-        }
-        
-    }
-   public getDamiera(){
-       return this.damiera
+
+/*
+    public getDamierao(dimensione: number){
+        this.Dim=dimensione;//non sono sicuro funzioni così
+        return this.damiera;
     }
 }
+export function getDamiera(dimensione: number){
+    //capire come fare la dimensione
+    return Damiera[];
+}
+export class GameInstance{
+    gameStatus: {
+        idgame: number;
+        player1: string;
+        player2: string;
+        inprogress: boolean;
+        dateStart: Date;
+        //stesso problema di movesW
+        dateEnd: Date;
+        playerTurn: string;
+        moves1: number;
+        moves2: number;
+        movesCount: number;
+        //fintanto che non c'è un vincitore movesW è NULL, verificare vada bene il tipo
+        movesW: number;
+        winner: string;
+        duration: number;
+        pieces1: number;
+        pieces2: number;
+        abbandono1: boolean;
+        abbandono2: boolean;
+        board: JSON;
+        logMosse: JSON;
+    }
+    constructor(){
+        this.gameStatus=this.gameStatus;
+    }
+    set Status(parametro: GameInstance){
+        this.gameStatus.idgame=parametro.gameStatus.idgame;
+        this.gameStatus.player1=parametro.gameStatus.player1;
+        this.gameStatus.player2=parametro.gameStatus.player2;
+        this.gameStatus.inprogress=parametro.gameStatus.inprogress;
+        this.gameStatus.dateStart=parametro.gameStatus.dateStart;
+        this.gameStatus.dateEnd=parametro.gameStatus.dateEnd;
+        this.gameStatus.playerTurn=parametro.gameStatus.playerTurn;
+        this.gameStatus.moves1=parametro.gameStatus.moves1;
+        this.gameStatus.moves2=parametro.gameStatus.moves2;
+        this.gameStatus.movesCount=parametro.gameStatus.movesCount;
+        this.gameStatus.movesW=parametro.gameStatus.movesW;
+        this.gameStatus.winner=parametro.gameStatus.winner;
+        this.gameStatus.duration=parametro.gameStatus.duration;
+        this.gameStatus.pieces1=parametro.gameStatus.pieces1;
+        this.gameStatus.pieces2=parametro.gameStatus.pieces2;
+        this.gameStatus.abbandono1=parametro.gameStatus.abbandono1;
+        this.gameStatus.abbandono2=parametro.gameStatus.abbandono2;
+        this.gameStatus.board=parametro.gameStatus.board;
+        this.gameStatus.logMosse=parametro.gameStatus.logMosse;
+    }
+    get Status():<GameInstance>{
+        output: GameInstance;
+        output.gameStatus=this.gameStatus;
+        return this.gameStatus;
+    }
+
+}
+let ciao=new GameInstance;
+ciao.gameStatus.inprogress=false;
+console.log(ciao.gameStatus.inprogress)
+*/
 export const Users = Database.connection().define('users', {
     email: {
         type: DataTypes.STRING(100),
@@ -156,6 +182,10 @@ export const Game = Database.connection().define('game', {
     },
     abbandono2:{
         type: DataTypes.BOOLEAN,
+        allowNull: false
+    },
+    dimensione: {
+        type: DataTypes.INTEGER,
         allowNull: false
     },
     board: {
@@ -301,3 +331,33 @@ export const Mossa = Database.connection().define('move', {
     timestamps: false,
     freezeTableName: true
 });
+
+/*
+ * Funzione che verifica l'esistenza di un utente nel database, data la sua email.
+ */
+ export async function checkIfUserExists(email: string): Promise<boolean> {
+    const [results,metadata]= await Database.connection().query("SELECT email FROM users WHERE email="+ email);
+    if (results !== null || results !== undefined) {
+        return true;
+    } else {
+        return false;
+    };
+}
+export async function checkIfAdmin(email: string): Promise<boolean> {
+    const [results,metadata]= await Database.connection().query("SELECT email FROM users WHERE email="+ email);
+    
+    if(results !== null || results !== undefined) {
+        return true;//results[0] === 'admin';
+    } else {
+        return false;
+    }
+}
+export async function checkIfUsersExist(email1: string, email2: string): Promise<boolean> {
+    const [results,metadata]= await Database.connection().query("SELECT email1,email2 FROM game WHERE player1="+ email1+"AND PLAYER2="+email2);
+    if (results !== null || results !== undefined) {
+        return true;
+    } else {
+        return false;
+    };
+}
+//queste 3 funzioni di sopra devono restituire un pacchetto http, ridefinire in futuro il return

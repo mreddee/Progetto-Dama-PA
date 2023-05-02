@@ -4,8 +4,8 @@ import Sequelize from 'sequelize';
 import { Database } from "../connection/connection";
 //fare npm install pdfkit
 const PDFDocument = require('pdfkit');
-
-
+import * as jwt from 'jsonwebtoken';
+import * as a from '../responses/error';
 /**
 * Update leaderboard data for the winning player
 * @param username 
@@ -177,13 +177,13 @@ export function exportAsCSV(logMoves: any, exportPath: string) {
 
 
 /**
-* Check if a ship has been sunk and check if the game is over
-* @param shipHit 
-* @param grid 
-* @param gridDim 
+* Check if a piece has been eaten and check if the game is over
+* @param been_Eaten 
+* @param damiera
+* @param gameDim
 * @returns 
 */
-export function returnGridState(shipName: string, grid: any, gridDim: number) {
+export function returnGameState(id_pezzo: string, Damiera: any, gameDim: number) {
     let isGameClosed: boolean = true;
     let isShipSunk: boolean = true;
     let gridState: any = {
@@ -204,7 +204,9 @@ export function returnGridState(shipName: string, grid: any, gridDim: number) {
     return gridState
 }
 //Visualizzazione classifica giocatori in ordine crescente o decrescente
-export async function returnLeaderboard(crescente: boolean){
+//definire bene i parametri
+//il return deve essere un messaggio http, riformulare il return
+export async function returnLeaderboard(crescente: boolean, qualcosadadefinire: any){
     if (crescente){
         const [results, metadata] = await Database.connection().query("SELECT * FROM leaderboard ORDER BY ASC(wins+dwins)");
         return results;
@@ -240,4 +242,127 @@ export async function returnMatchesLog(id_player: string, datain?: Date, dataf?:
         const [results,metadata]=await Database.connection().query("SELECT * FROM game WHERE player1="+id_player+"OR player2="+id_player+" AND in_progress=false AND date_start>="+datain+"AND date_start<"+dataf);
         return results;
     }
+}
+/**
+ * Verifica che nel JWT il richiedente sia l'admin.
+ */
+export async function authenticateAdmin(req: any, res: any, next: any): Promise<void>{
+    try {
+        let decoded = JSON.parse(JSON.stringify(jwt.decode(req.token)));
+        let authenticated: boolean = await checkIfAdmin(decoded.richiedente);
+        if (authenticated) {
+            next();
+        } else {
+            next(a.ErrorEnum.NotAuthenticated);
+        }
+    } catch (e) { 
+        next(a.ErrorEnum.InternalServer); 
+    }
+}
+export function gridInitialize(gridDim: number) {
+    let oggetto: models.Damiera={
+        Dim: gridDim,
+        damiera: models.blocco
+    }
+
+}
+
+//la classe damiera verra' usata per generare il campo da gioco, con il constructor genero il campo e lo popolo con le posizioni iniziali dei pezzi
+//per capire il significato degli if, si osservi l'immagine di damieraitaliana.png nella repository,
+//si osserva che le pedine inizialmente occupano per righe pari posti a colonne pari e per righe dispari colonna dispari
+//il k ci serve per posizionare le specifiche pedine, arrivato a riga 3 sappiamo che abbiamo finito di posizionare i neri, passeremo a riga 5 i bianchi
+//che seguono lo stesso pattern posizionale, le posizioni restanti sono lasciate vuote
+export function Damiera(){
+    //4x4 2 pezzi nella prima e ultima riga, 6x6 6 pezzi prime due e ultime 2 righe, 8x8 default
+let damiera= new models.blocco[][]
+pezziNeri: Array<string>;
+pezziBianchi: Array<string>;
+Dim: number;
+constructor(r:number, c:number,occupied:boolean,occupiedby:string ,faction:string ,Damiera: blocco[][],Dim:number){
+    super(r,c,occupied,occupiedby,faction)
+    this.r=r;
+    this.c=c;
+    this.occupied=occupied;
+    this.occupiedby=occupiedby;
+    this.faction=faction;
+}
+public createCampodigioco():Damiera{
+    this.damiera=this.damiera;
+    this.pezziNeri=["1N","2N","3N","4N","5N","6N","7N","8N","9N","10N","11N","12N"];
+    this.pezziBianchi=["1B","2B","3B","4B","5B","6B","7B","8B","9B","10B","11B","12B"];
+    //dimensioni possibili: 3,5,7
+    let pezziNeri=["1N","2N","3N","4N","5N","6N","7N","8N","9N","10N","11N","12N"];
+    let pezziBianchi=["1B","2B","3B","4B","5B","6B","7B","8B","9B","10B","11B","12B"];
+    let k=0;
+    switch(this.Dim){
+        case(3):{
+            for(let i = 0; i < this.Dim; i++){
+                this.damiera[i] = [];
+                if (i==1) {k=0}
+                for(let j = 0; j < this.Dim; j++){
+                        if ((i==0 && i%2==0 && j%2==0)||(i==0 && i%2!=0 && j%2!=0)){
+                            this.damiera[i][j] = new blocco(i,j,true,pezziNeri[k],"N");
+                            k++;
+                        }
+                        if ((i==3 && i%2==0 && j%2==0)||(i==3 && i%2!=0 && j%2!=0)){
+                            this.damiera[i][j] = new blocco(i,j,true,pezziBianchi[k],"B");
+                            k++;
+                        }
+                        else{
+                            this.damiera[i][j] = new blocco(i,j,false,"","");
+                        }
+                
+                        
+                }
+            }
+            break;
+        }
+        case(5):{
+            for(let i = 0; i < this.Dim; i++){
+                this.damiera[i] = [];
+                if (i==2) {k=0}
+                for(let j = 0; j < this.Dim; j++){
+                        if ((i<2 && i%2==0 && j%2==0)||(i<2 && i%2!=0 && j%2!=0)){
+                            this.damiera[i][j] = new blocco(i,j,true,pezziNeri[k],"N");
+                            k++;
+                        }
+                        if ((i>3 && i%2==0 && j%2==0)||(i>3 && i%2!=0 && j%2!=0)){
+                            this.damiera[i][j] = new blocco(i,j,true,pezziBianchi[k],"B");
+                            k++;
+                        }
+                        else{
+                            this.damiera[i][j] = new blocco(i,j,false,"","");
+                        }
+                
+                        
+                }
+            }
+            break;
+        }
+        case(7):{
+            for(let i = 0; i < this.Dim; i++){
+                this.damiera[i] = [];
+                if (i==3) {k=0}
+                for(let j = 0; j < this.Dim; j++){
+                        if ((i<3 && i%2==0 && j%2==0)||(i<3 && i%2!=0 && j%2!=0)){
+                            this.damiera[i][j] = new blocco(i,j,true,pezziNeri[k],"N");
+                            k++;
+                        }
+                        if ((i>=5 && i%2==0 && j%2==0)||(i>=5 && i%2!=0 && j%2!=0)){
+                            this.damiera[i][j] = new blocco(i,j,true,pezziBianchi[k],"B");
+                            k++;
+                        }
+                        else{
+                            this.damiera[i][j] = new blocco(i,j,false,"","");
+                        }
+                
+                        
+                }
+            }
+            break;
+        }
+        }
+    return this.damiera;
+}
+
 }
