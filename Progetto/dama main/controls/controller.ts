@@ -1,5 +1,6 @@
 import * as models from "../models/models"
 import * as utils from "../utils/utils"
+import { ErrorEnum, ErrorFactory } from "../responses/error";
 /**
  * Funzione generatrice del gioco, parametri:
  * @email1 giocatore 1
@@ -46,7 +47,7 @@ export async function createGame(player1: string,
             dimensione: dimensione,
             board: campo,
             log_mosse: logMoves
-    });
+        });
         res.status(200).json({
             status: 200,
             player1: player1,
@@ -65,11 +66,28 @@ export async function createGame(player1: string,
             dimensione: dimensione,
             board: campo,
             log_mosse: logMoves
-        }),
-    
-    catch(error){
-        controllerErrors(ErrorEnum.ErrServer, error, res),
+        });
     }
+    catch(error){
+        generateControllerErrors(ErrorEnum.InternalServer, error, res);
+    }
+    }
+    export async function refillTokens(req: any, res: any) {
+        try {
+                continue;
+                let ciao: number;
+            }
+         catch(e) {
+            generateControllerErrors(ErrorEnum.InternalServer, e, res);
+        }
+    }
+
+function generateControllerErrors(error_enum: ErrorEnum, err: Error, res: any) {
+    const errorFactory = new ErrorFactory();
+    const error = errorFactory.getError(error_enum);
+    res.status(error.getStatus()).json({
+        status: error.getStatus(),
+        error: error.getMsg()
+    });
 }
 
-}
