@@ -2,7 +2,6 @@ import * as models from '../models/models';
 import fs, { promises } from 'fs';
 import Sequelize from 'sequelize';
 import { Database } from "../connection/connection";
-//fare npm install pdfkit
 const PDFDocument = require('pdfkit');
 import * as jwt from 'jsonwebtoken';
 import * as a from '../responses/error';
@@ -183,7 +182,7 @@ export function exportAsCSV(logMoves: any, exportPath: string) {
 * @param gameDim
 * @returns 
 */
-export function returnGameState(id_pezzo: string, Damiera: any, gameDim: number) {
+//export function returnGameState(id_pezzo: string, Damiera: any, gameDim: number) {
     let isGameClosed: boolean = true;
     let isShipSunk: boolean = true;
     let gridState: any = {
@@ -191,8 +190,8 @@ export function returnGameState(id_pezzo: string, Damiera: any, gameDim: number)
         isGameClosed
     };
 
-    for(let j = 0; j < gridDim; j++) {
-        for(let k = 0; k < gridDim; k++) {
+    for(let j = 0; j < gameDim; j++) {
+        for(let k = 0; k < gameDim; k++) {
             if(grid[j][k] === shipName) {
                 gridState.isShipSunk = false;
             }
@@ -202,7 +201,7 @@ export function returnGameState(id_pezzo: string, Damiera: any, gameDim: number)
         }
     }
     return gridState
-}
+//}
 //Visualizzazione classifica giocatori in ordine crescente o decrescente
 //definire bene i parametri
 //il return deve essere un messaggio http, riformulare il return
@@ -246,7 +245,7 @@ export async function returnMatchesLog(id_player: string, datain?: Date, dataf?:
 /**
  * Verifica che nel JWT il richiedente sia l'admin.
  */
-export async function authenticateAdmin(req: any, res: any, next: any): Promise<void>{
+//export async function authenticateAdmin(req: any, res: any, next: any): Promise<void>{
     try {
         let decoded = JSON.parse(JSON.stringify(jwt.decode(req.token)));
         let authenticated: boolean = await checkIfAdmin(decoded.richiedente);
@@ -258,14 +257,8 @@ export async function authenticateAdmin(req: any, res: any, next: any): Promise<
     } catch (e) { 
         next(a.ErrorEnum.InternalServer); 
     }
-}
-export function gridInitialize(gridDim: number) {
-    let oggetto: models.Damiera={
-        Dim: gridDim,
-        damiera: models.blocco
-    }
+//}
 
-}
 
 //la classe damiera verra' usata per generare il campo da gioco, con il constructor genero il campo e lo popolo con le posizioni iniziali dei pezzi
 //per capire il significato degli if, si osservi l'immagine di damieraitaliana.png nella repository,
@@ -274,9 +267,9 @@ export function gridInitialize(gridDim: number) {
 //che seguono lo stesso pattern posizionale, le posizioni restanti sono lasciate vuote
 export class Damiera {
     //4x4 2 pezzi nella prima e ultima riga, 6x6 6 pezzi prime due e ultime 2 righe, 8x8 default
-    public damiera: models.blocco[][];
-    pezziNeri: Array<string>;
-    pezziBianchi: Array<string>;
+    public damiera: models.blocco[][] = [];
+    pezziNeri: Array<string> = [];
+    pezziBianchi: Array<string> = [];
     dim: number;
     //dimensioni possibili: 3,5,7
         public constructor(dim:number){

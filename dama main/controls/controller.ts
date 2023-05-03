@@ -57,13 +57,13 @@ export async function createGame(player1: string,
             board: campo,
             log_mosse: logMoves
         });
-    }
-    catch(error){
+    } catch(error: any){
         generateControllerErrors(ErrorEnum.InternalServer, error, res);
     }
+    
 }
 
-function generateControllerErrors(error_enum: ErrorEnum, err: Error, res: any) {
+function generateControllerErrors(error_enum: ErrorEnum, _err: Error, res: any) {
     const errorFactory = new ErrorFactory();
     const error = errorFactory.getError(error_enum);
     res.status(error.getStatus()).json({

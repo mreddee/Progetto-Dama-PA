@@ -14,8 +14,8 @@ export function checkUsersExistence(req: any, res: any, next: any): void {
     })
   }
 
-export function checkUsersTokens(req: any, res: any, next: any) : void {
-    Controller.checkIfUsersHaveTokens(req.body.email1, req.body.email2, res).then((check) => {
+/*export function checkUsersTokens(req: any, res: any, next: any) : void {
+    Controller.checkIfUsersHaveTokens(req.body.email1, req.body.email2, res).then((check: any) => {
         if(check) {
             console.log("checkUsersTokens: SUCCESS");
             next();
@@ -24,7 +24,7 @@ export function checkUsersTokens(req: any, res: any, next: any) : void {
             next(ErrorEnum.InsufficientTokens);
         }
     })
-}
+}*/
 /**
  * Verifica che l'utente specificato per il rifornimento di token esista effettivamente.
  */
@@ -49,8 +49,8 @@ export function checkUserExistence(req: any, res: any, next: any) : void {
  * Verifica che gli utenti specificati all'atto di creazione di una partita non stiano già giocando in un'altra
  * partita, attraverso il metodo del Controller.
  */
-export function checkUsersState(req: any, res: any, next: any) : void {
-    Controller.checkIfUsersArePlaying(req.body.email1, req.body.email2, res).then((check) => {
+/*export function checkUsersState(req: any, res: any, next: any) : void {
+    Controller.checkIfUsersArePlaying(req.body.email1, req.body.email2, res).then((check: any) => {
         if(check) {
             console.log("checkUsersState: SUCCESS");
             next();
@@ -59,4 +59,4 @@ export function checkUsersState(req: any, res: any, next: any) : void {
             next(ErrorEnum.AlreadyPlaying);
         }
     })
-}
+}*/

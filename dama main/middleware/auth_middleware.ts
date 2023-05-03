@@ -1,7 +1,8 @@
 require('dotenv').config();
+import { checkIfAdmin, checkIfUserExists } from "../models/models";
 import { ErrorEnum } from "../responses/error";
 import * as jwt from 'jsonwebtoken';
-import { checkIfAdmin, checkIfUserExists } from "../utils/utils";
+//import { checkIfAdmin, checkIfUserExists } from "../utils/utils";
 
 /**
  * Verifica che la richiesta HTTP abbia un Authorization Header.
@@ -38,7 +39,7 @@ export function checkAuthHeader (req: any, res: any, next: any): void {
 //dichiarare SECRET_KEY IN ENV
  export function verifySecretKey(req: any, res: any, next: any): void{
     try {
-        let decoded = jwt.verify(req.token, process.env.SECRET_KEY);
+        let decoded = jwt.verify(req.token, process.env.KEY!);
         if (decoded !== null) {
             next();
         } else {
@@ -55,7 +56,7 @@ export async function authenticateUser(req: any, res: any, next: any): Promise<v
     try {
         let decoded = JSON.parse(JSON.stringify(jwt.decode(req.token)));
         //da fare la funzione di controllo se esiste l'utente
-        let authenticated: boolean = await checkIfUserExists(decoded.richiedente);
+        let authenticated: boolean = await checkIfUserExists(decoded.richiedente,res);
         if (authenticated) {
             next();
         } else {

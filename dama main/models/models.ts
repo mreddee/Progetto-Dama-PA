@@ -266,7 +266,7 @@ export const Mossa = Database.connection().define('move', {
 /*
  * Funzione che verifica l'esistenza di un utente nel database, data la sua email.
  */
- export async function checkIfUserExists(email: string): Promise<boolean> {
+ export async function checkIfUserExists(email: string,res: any): Promise<boolean> {
     const [results,metadata]= await Database.connection().query("SELECT email FROM users WHERE email="+ email);
     if (results !== null || results !== undefined) {
         return true;

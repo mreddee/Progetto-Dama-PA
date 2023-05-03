@@ -1,4 +1,4 @@
-import * as express from 'express';
+import express = require('express');
 import * as AuthMiddleware from '../middleware/auth_middleware';
 import * as RouteMiddleware from '../middleware/route_middleware';
 import * as ControllerMiddleware from '../middleware/controller_middleware';
