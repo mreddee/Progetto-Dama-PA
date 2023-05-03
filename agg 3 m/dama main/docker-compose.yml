@@ -1,0 +1,22 @@
+version: '3.7'
+services:
+    dbpg:
+        image: mysql
+        restart: always
+        environment:
+          MYSQL_USER: user
+          MYSQL_PASSWORD: password
+        ports:
+          - 5432:5432
+        volumes:
+          - ./seeder/seed.sql:/docker-entrypoint-initdb.d/seed.sql
+          - ./img:/usr/src/app/img        
+    node:
+        build: .
+        restart: always
+        ports:
+          - 3000:3000
+        env_file:
+          - .env
+        depends_on:
+          - dbmysql
