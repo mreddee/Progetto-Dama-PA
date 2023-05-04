@@ -1,0 +1,122 @@
+{
+	"info": {
+		"_postman_id": "b0351e98-c4cf-46d5-9247-9378e1855415",
+		"name": "TestingDama",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "24068373"
+	},
+	"item": [
+		{
+			"name": "create-game jwt: admin",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluQGdtYWlsLmNvbSJ9.E8tG-5LJFqZbwT5mO1nVob1Sb7M2Adw3WXkmJXJnuCM",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"player2\": \"player1@gmail.com\",\r\n    \"dimensione\": 3\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/create-game",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"create-game"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "create-game jwt: player1",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InBsYXllcjFAZ21haWwuY29tIn0.1dFwZ5V6WuRFjvxtA6qo-5i97noWFmJRMklRbbI8ja4",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"player2\": \"player2@gmail.com\",\r\n    \"dimensione\": 3\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/create-game",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"create-game"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "create-game jwt: player2",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InBsYXllcjJAZ21haWwuY29tIn0.LZzmsu2Z0HGESlT5qrNy8MwBrOPMN0UCF6eLwkFjZfc",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"player2\": \"player1@gmail.com\",\r\n    \"dimensione\": 3\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/create-game",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"create-game"
+					]
+				}
+			},
+			"response": []
+		},
+        {}
+    ]
+}
