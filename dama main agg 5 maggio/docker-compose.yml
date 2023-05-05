@@ -1,0 +1,30 @@
+version: '3.7'
+services:
+    dama:
+        image: mysql/mysql-server:latest
+        restart: always
+        environment:
+          - MYSQL_DATABASE=damadb
+          - MYSQL_USER=mysql
+          - MYSQL_PASSWORD=pass
+          - MYSQL_ROOT_PASSWORD=root
+        ports:
+          - 5432:5432
+        volumes:
+          - ./seed.sql:/docker-entrypoint-initdb.d/seed.sql 
+    node:
+        build: .
+        restart: always
+        ports:
+          - 3000:3000
+        environment:
+          - MYSQL_DATABASE=damadb
+          - MYSQL_USER=mysql
+          - MYSQL_PASSWORD=pass
+          - MYSQL_ROOT_PASSWORD=root
+          - MYSQL_HOST=dama
+          - MYSQL_PORT=5432
+        env_file:
+          - .env
+        depends_on:
+          - dama
