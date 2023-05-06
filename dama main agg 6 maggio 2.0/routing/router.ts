@@ -1,0 +1,45 @@
+import express from 'express';
+import * as Middleware_CoR from '../middleware/Middleware_CoR';
+import * as Middleware from '../middleware/middleware';
+import * as Controller from '../controls/controller';
+import * as utils from '../utils/utils';
+//import { getGameById } from '../models/models';
+import * as jwt from 'jsonwebtoken';
+//Definire i middleware di controller, routing, gestione errore e controlla i modelli
+const app=express();
+
+app.use(express.json());
+
+/**
+ * Rotta di tipo POST che consente di creare una partita tramite token JWT.
+ * AuthMiddleware.checkToken,
+ */
+// Route to begin a match
+app.post('/create-game', Middleware_CoR.authentication, Middleware_CoR.beginMatch, Middleware_CoR.catchError, (req: any, res: any) => {
+    Controller.updateToken(req.bearer.email, +process.env.MATCH_COST!, res);
+    Controller.createGame(req.bearer.email, req.body.player2, req.body.dimensione, res);
+});
+// Route to refill a user's token
+//i valori non li aggiorna davvero! da controllare
+app.post('/token-charge', Middleware_CoR.authentication, Middleware_CoR.refill, Middleware_CoR.catchError, (req: any, res: any) => {
+    Controller.refill(req.body.email, req.body.token, res);
+    console.log("RICARICA DI "+req.body.email+" RIUSCITA!!");
+});
+// Route to show a user's token
+//post
+//visualizza i valori correttamente
+app.get('/show-token', Middleware_CoR.authentication, Middleware_CoR.checkToken, Middleware_CoR.catchError, (req: any, res: any) => {
+    Controller.showToken(req.bearer.email, res);
+});
+app.get('/show-token-admin', Middleware_CoR.authentication, Middleware_CoR.refill, Middleware_CoR.catchError, (req: any, res: any) => {
+    Controller.showTokenAdmin(req.bearer.email,req.body.token, res);
+});
+
+// Managing invalid routes
+app.get('*', Middleware.routeNotFound, Middleware_CoR.catchError);
+app.post('*', Middleware.routeNotFound, Middleware_CoR.catchError);
+
+
+app.listen(3000, () => {
+    console.log('The application is running on localhost:8080!');
+});
