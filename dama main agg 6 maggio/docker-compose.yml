@@ -1,0 +1,33 @@
+version: '3.7'
+services:
+    dama:
+        image: mysql
+        restart: always
+        environment:
+          - MYSQL_DATABASE=damadb
+          - MYSQL_USER=mysql
+          - MYSQL_PASSWORD=pass
+          - MYSQL_ROOT_PASSWORD=root
+          - MATCH_COST=0.35
+          - MOVE_COST=0.015
+        ports:
+          - 3306:3306
+        volumes:
+          - ./seed.sql:/docker-entrypoint-initdb.d/seed.sql 
+    node:
+        build: .
+        restart: always
+        ports:
+          - 3000:3000
+        environment:
+          - MYSQL_DATABASE=damadb
+          - MYSQL_USER=mysql
+          - MYSQL_PASSWORD=pass
+          - MYSQL_ROOT_PASSWORD=root
+          - MYSQL_HOST=dama
+          - MYSQL_PORT=3306
+          - SECRET_KEY=secretkey
+        env_file:
+          - .env
+        depends_on:
+          - dama
