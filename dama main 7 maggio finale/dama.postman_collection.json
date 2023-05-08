@@ -1,0 +1,343 @@
+{
+	"info": {
+		"_postman_id": "b9885612-40e0-49bf-ae88-43fbd344cbab",
+		"name": "dama",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "26184444"
+	},
+	"item": [
+		{
+			"name": "create-game jwt: admin",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzM4NCIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluQGdtYWlsLmNvbSJ9.8_QJjswVgJLv-5IpJ3HGrQBeNC73CX16y81B9bjF7GcZXg1VJixSMzNKCsy_bsF5",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"player2\": \"player1@gmail.com\",\r\n    \"dimensione\": 3\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:3000/create-game",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"create-game"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "create-game jwt: player1",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzM4NCIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InBsYXllcjFAZ21haWwuY29tIn0.eT3wgp7y9aaexM9cSEJoaRU-jADVOaEk5cYepKMffIKx_ji-V4a0NgXh6rbEHbBe",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"player2\": \"player2@gmail.com\",\r\n    \"dimensione\": 3\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:3000/create-game",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"create-game"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "create-game jwt: player2",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzM4NCIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InBsYXllcjJAZ21haWwuY29tIn0.5IyyExEzlwihPTUGTlEf88CM7SwOsF0MYGfiX0HAKf2aGeTgbNzIfoGUKwRkZMTg",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"player2\": \"player1@gmail.com\",\r\n    \"dimensione\": 3\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:3000/create-game",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"create-game"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "refill jwt: admin",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzM4NCIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluQGdtYWlsLmNvbSJ9.8_QJjswVgJLv-5IpJ3HGrQBeNC73CX16y81B9bjF7GcZXg1VJixSMzNKCsy_bsF5",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\": \"player1@gmail.com\",\r\n    \"token\": 80.000\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:3000/refill",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"refill"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "localhost:3000/show-token: player1",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzM4NCIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InBsYXllcjFAZ21haWwuY29tIn0.eT3wgp7y9aaexM9cSEJoaRU-jADVOaEk5cYepKMffIKx_ji-V4a0NgXh6rbEHbBe",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:3000/show-token",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"show-token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "localhost:3000/show-token-admin",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzM4NCIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluQGdtYWlsLmNvbSJ9.8_QJjswVgJLv-5IpJ3HGrQBeNC73CX16y81B9bjF7GcZXg1VJixSMzNKCsy_bsF5",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"token\": 10.000\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:3000/show-token-admin",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"show-token-admin"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "localhost:3000/leaderboard:player1 asc",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzM4NCIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InBsYXllcjFAZ21haWwuY29tIn0.eT3wgp7y9aaexM9cSEJoaRU-jADVOaEk5cYepKMffIKx_ji-V4a0NgXh6rbEHbBe",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"sort\": \"asc\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:3000/leaderboard",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"leaderboard"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "localhost:3000/leaderboard:player1 desc",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzM4NCIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InBsYXllcjFAZ21haWwuY29tIn0.eT3wgp7y9aaexM9cSEJoaRU-jADVOaEk5cYepKMffIKx_ji-V4a0NgXh6rbEHbBe",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"sort\":\"desc\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:3000/leaderboard",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"leaderboard"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "localhost:3000/make-move: player1 game1 1N da 00 a 11",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzM4NCIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InBsYXllcjFAZ21haWwuY29tIn0.eT3wgp7y9aaexM9cSEJoaRU-jADVOaEk5cYepKMffIKx_ji-V4a0NgXh6rbEHbBe",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"id_game\":1,\r\n    \"id_pezzo\": \"1N\",\r\n    \"da_x\": 0,\r\n    \"da_y\": 0,\r\n    \"a_x\": 0,\r\n    \"a_y\": 0,\r\n    \"dimensione\":3\r\n\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:3000/make-move",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"make-move"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
