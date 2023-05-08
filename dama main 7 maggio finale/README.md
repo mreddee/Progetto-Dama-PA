@@ -6,7 +6,7 @@ Il progetto consiste nello sviluppo di sistema backend per la gestione del gioco
 
 ## Funzioni del sistema
 
-| Funzioni | Ruolo | -----?ruoli + aggiorna da chi posso essere richiamate prendendo in input cosa + aggiorna postman nelle descrizioni
+| Funzioni | Ruolo |
 | -------- | ----- |
 | Crea una nuova partita | User |
 | Esegue una mossa | User |
@@ -21,7 +21,7 @@ Il progetto consiste nello sviluppo di sistema backend per la gestione del gioco
 
 Ogni funzione è associata ad una diversa richiesta HTTP (POST o GET), per alcune delle quali è prevista un'autenticazione tramite token JWT.
 
-## Rotte ------>aggiorna
+## Rotte
 
 | Tipo | Rotte |
 | ---- | ----- |
@@ -70,7 +70,7 @@ Middleware->>Middleware: checkHeader()
 Middleware->>Middleware: checkToken()
 Middleware->>Middleware: verifyAndAuthenticate()
 Middleware->>Middleware CoR: next() 
-Middleware CoR->>Middleware: beginMatch() ------> cor begin match
+Middleware CoR->>Middleware: beginMatch()
 Middleware->>Middleware: checkUserExist()
 Middleware->>Controller: checkUser()
 Controller->>Model: Users.findByPk()
@@ -93,18 +93,18 @@ Model->>Controller: object
 Controller->>Middleware: result: boolean
 Middleware->>Middleware: checkSameUser()
 Middleware->>Middleware CoR: next()
-Middleware CoR->>Router: next() ------> fino qui
+Middleware CoR->>Router: next() 
 Router->>Controller: updateToken()
 Controller->>Controller: getToken()
 Controller->>Model: Users.findByPk()
 Model->>Controller: number
 Controller->>Model: Users.update()
 Router->>Controller: createGame()
-Controller->>Model: game.create() ----->dopo che si crea un oggetto sul model
+Controller->>Model: game.create() 
 Controller->>Client: res.status().json
 ```
 
-## Esegui una mossa (/make-move) ---------->aggiorna
+## Esegui una mossa (/make-move)
 Mediante l'utilizzo di questa rotta si può effettuare una mossa. Questa rotta può essere richiamata solamente dagli utenti autenticati. 
 L'utente autenticato tramite JWT deve semplicemente scegliere una riga (row) e una colonna (col) che saranno le due coordinate della cella in cui sparerà. Le coordinate devono essere tra 0 e la dimensione della griglia - 1. L'id univoco della partita dovrà essere lo stesso della partita che sta giocando quell'utente.
 
@@ -189,7 +189,7 @@ Utils->>Utils: returnGridState()
 Utils->>Models: Game.update()
 ```
 
-## Mostra lo stato di una partita (/show-game) ------> input email?
+## Mostra lo stato di una partita (/show-game)
 Mediante l'utilizzo di questa rotta si può vedere lo stato di una partita.
 L'utente autenticato tramite JWT può vedere lo stato di una partita semplicemente inserendo l'id della partita in corso o terminata. Questa rotta può essere richiamata solamente dagli utenti autenticati.
 
