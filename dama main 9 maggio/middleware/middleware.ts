@@ -225,18 +225,7 @@ export function checkOpponentExist(req: any, res: any, next: any): void {
     else next(ErrorEnum.ErrUser);
   })
 }
-export function checkOpponentBusy(req: any, res: any, next: any): void {
-  Controller.checkBusy(req.body.player2, res).then((esito) => {
-    console.log(esito);
-    if (esito == 1) {//if non affidabile
-      next(ErrorEnum.ErrorPlayerBusy);
-    }
-    else {
-      console.log("Opponent is avaiable");
-      next();
-    }
-  })
-}
+
   
 
 /**
@@ -357,7 +346,7 @@ export function checkGameExist(req: any, res: any, next: any): void {
 * @param next -> next middleware
 */
 export function checkPlayerTurn(req: any, res: any, next: any): void {
-  Controller.checkPlayerTurnById(req.body.id, req.bearer.email).then((id) => {
+  Controller.checkPlayerTurnById(req.body.id_game, req.bearer.email).then((id) => {
     if (id) next();
     else next(ErrorEnum.ErrorPlayerTrun, res);
   })

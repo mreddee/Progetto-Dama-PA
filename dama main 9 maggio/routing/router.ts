@@ -45,23 +45,25 @@ app.get('/leaderboard', Middleware_CoR.leaderboard, Middleware_CoR.catchError, (
     Controller.showLeaderboard(req.body.sort, res);
 });
 
-//verifica se la mossa è ammissibile
-//verifica id_game e aggiorna campo (?)
-//non abbiamo implementato il 'se può mangiare'
-//assunzioni: si cambia a prescindere turno, player1 ha i neri e player2 i bianchi, --le dame si muovono come i pedoni, i pedoni si trasformano in dame--
+//non abbiamo implementato la meccanica di trasformazione in dama del pezzo
+//assunzioni: P1 neri e P2 bianchi
+//a pezzo spostato anche se mangia termina il turno
+//i pedoni se mangiano si spostano nel posto del pezzo che hanno mangiato
+//errori nell'aggiornamento della leaderboard, inoltre non riesce ad aggiornare la tabella user
 app.post('/make-move', Middleware_CoR.authentication, Middleware_CoR.makeMove, Middleware_CoR.catchError, (req: any, res: any) => {
     Controller.updateToken(req.bearer.email, +process.env.MOVE_COST!, res);
-    Controller.createMove(req.bearer.email, req.body.id_game, req.body.id_pezzo, req.body.da_x, req.body.da_y, req.body.a_x, req.body.a_y, req.body.dimensione, res);
+    Controller.createMove(req.bearer.email, req.body.id_game, req.body.da_x, req.body.da_y, req.body.a_x, req.body.a_y, res);
 });
 
 //verifica lo stato di una partita specifica per id (NON TROVA LE PARTITE!)
+//da controllare se va bene
 app.get('/show-game', Middleware_CoR.authentication, Middleware_CoR.catchError, (req: any, res: any) => {
     Controller.showGame(req.body.id_game, res);
 });
 
 //determina l'abbandono di un giocatore
 //aggiornare lo status di disponibile dei due giocatori alla fine
-//vedere se riesce ad aggiornare la leaderboard e se la richiesta va fino alla fine o meno
+//non vede le email dei giocatori da aggiornare le leaderboard
 app.post('/concede', Middleware_CoR.authentication, Middleware_CoR.gameState, Middleware_CoR.catchError, (req: any, res: any) => {
     Controller.concede(req.bearer.email, req.body.id_game, res);
 });

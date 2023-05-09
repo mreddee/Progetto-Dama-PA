@@ -73,8 +73,8 @@ INSERT INTO users (email, username, isadmin, isplaying, token) VALUES
     ('player4@gmail.com','player4',0,0,10.000);
 
 INSERT INTO game (id_game, player1, player2, in_progress, date_start, date_end, player_turn, moves1, moves2, winner, pieces1, pieces2, abbandono1, abbandono2, dimensione, board) VALUES
-    (1, 'admin@gmail.com', 'player1@gmail.com', 0, '2023-05-06', '2023-05-07', 'admin@gmail.com', 6, 5, 'admin', 1, 0, 0, 0, 3, '{"board":[["/","/","/","/"],["/","/","/","/"],["/","/","/","/"],["/","/","N","/"]]}'),
-    (2, 'player1@gmail.com', 'player2@gmail.com', 0, '2023-05-02', '2023-05-05', 'player1@gmail.com', 5, 4, 'player1', 1, 0, 0, 0, 3, '{"board":[["/","/","B","/"],["/","/","/","/"],["/","/","/","/"],["/","/","/","/"]]}');
+    (1, 'admin@gmail.com', 'player1@gmail.com', 0, '2023-05-06', '2023-05-07', 'admin@gmail.com', 6, 5, 'admin@gmail.com', 1, 0, 0, 0, 4, '{"board":[["/","/","/","/"],["/","/","/","/"],["/","/","/","/"],["/","/","N","/"]]}'),
+    (2, 'player1@gmail.com', 'player2@gmail.com', 0, '2023-05-02', '2023-05-05', 'player1@gmail.com', 5, 4, 'player1@gmail.com', 1, 0, 0, 0, 4, '{"board":[["/","/","B","/"],["/","/","/","/"],["/","/","/","/"],["/","/","/","/"]]}');
 
 
 INSERT INTO moves (id_game, id, player, id_pezzo, da_x, da_y, a_x, a_y, ha_mangiato) VALUES

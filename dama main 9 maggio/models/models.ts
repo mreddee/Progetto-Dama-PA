@@ -107,7 +107,7 @@ export const Game = sequelize.define('game', {
 });
 
 export const Leaderboard = sequelize.define('leaderboard', {
-    username: {
+    email: {
         type: DataTypes.STRING(100),
         primaryKey: true
     },

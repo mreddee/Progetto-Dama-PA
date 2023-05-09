@@ -3,7 +3,6 @@ import {Database} from '../connection/connection'
 import fs from 'fs';
 import * as models from '../models/models';
 const PDFDocument = require('pdfkit');
-//fai update leaderboard default win
 
 
 /**
@@ -22,7 +21,7 @@ export async function updateLeaderboardWin(username: string): Promise<void> {
 
     if(!leaderboard) {
         Leaderboard.create({
-            username: username,
+            email: username,
             moves_mean: mean,
             wins: 1,
             losses: 0,
@@ -41,7 +40,7 @@ export async function updateLeaderboardWin(username: string): Promise<void> {
             moves_mean: mean
         },
         {
-            where: { username: username }
+            where: { email: username }
         });
     }
 }
@@ -60,7 +59,7 @@ export async function updateLeaderboardLose(username: string): Promise<void> {
 
     if(!leaderboard) {
         Leaderboard.create({
-            username: username,
+            email: username,
             moves_mean: 0,
             wins: 0,
             losses: 1,
@@ -78,7 +77,7 @@ export async function updateLeaderboardLose(username: string): Promise<void> {
             losses: numMatchLose
         },
         {
-            where: { username: username }
+            where: { email: username }
         });
     }
 }

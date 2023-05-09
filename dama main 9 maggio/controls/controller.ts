@@ -14,39 +14,13 @@ import path from 'path';
 export async function createGame(player1:string, player2:string, dimensione:number, res: any): Promise<any>{
     let campo: models.Damiera;
     campo=new models.Damiera(dimensione);
-    let field: string=JSON.stringify(campo);//ottengo il json dell'oggetto da inserire nel database
-    //esempio di inizializzazione di una cella del campo da gioco
-    //campo=JSON.parse(field);//mi riottengo il campo da poter manipolare nel codice
-
-
-    type stringArray3 = {
-        board: [any[],any[],any[],any[]]
-    };
-
-    type stringArray5 = {
-        board: [any[],any[],any[],any[],any[],any[]]
-    };
-
-    type stringArray7 = {
-        board: [any[],any[],any[],any[],any[],any[],any[],any[]]
-    };
-
-    var board: any;
-    if (dimensione==3) {board = {board: [[],[],[],[]]}};
-    if (dimensione==5) {board = { board: [[],[],[],[],[],[]]}};
-    if (dimensione==7) {board = { board: [[],[],[],[],[],[],[],[]]}};
-
     let pieces: number = utils.piecesnumber(dimensione);
-    //.slice(0, 10) prende solo le prime 11 cifre, prende solo la data e non l'ora
     const todayDate = new Date().toISOString();
-    console.log(player1);
-    console.log(player2);
-    console.log(field);
     try {
         //aggiorna lo stato dei giocatori della partita appena creata in occupati
         await models.Users.update({ isplaying: 1 }, { where: { email: player1 } });
         await models.Users.update({ isplaying: 1 }, { where: { email: player2 } });
-        await models.Game.create({
+        await models.Game.create({//aggiungere i campi moves win e durata
             player1: player1,
             player2: player2,
             in_progress: 1,
@@ -61,7 +35,6 @@ export async function createGame(player1:string, player2:string, dimensione:numb
             abbandono1: 0,
             abbandono2: 0,
             dimensione: dimensione,
-            //board: campo
             board: campo
         });
 
@@ -110,18 +83,6 @@ function controllerErrors(enum_error: ErrorEnum, err: any, res: any, msgParamete
     console.log(err);
     res.status(new_err.status).json({ error: new_err.status, message: new_err.msg });
 }
-//controlla se l'avversario è in gioco, non sta facendo il suo lavoro
-export async function checkBusy(player:string, res: any): Promise<any>{
-    let result: any;
-    try{
-        
-        result =await utils.isBusy(player);
-        console.log("result"+result);
-    }catch(error){
-        controllerErrors(ErrorEnum.ErrServer,error,res)
-    }
-    return result;
-}
 
 export async function checkUser(email: string, res: any): Promise<boolean> {
     let result: any;
@@ -137,7 +98,7 @@ export async function checkUser(email: string, res: any): Promise<boolean> {
 
 export function showToken(email: string, res: any): void {
     console.log(models.Users.findByPk(email, { raw: true }));
-    models.Users.findByPk(email, { raw: true }).then((item: any) => {
+    models.Users.findByPk(email, { raw: true }).then(() => {
         const new_res = new Success().getMsg();
         res.status(new_res.status).json({ status: new_res.status, message: new_res.msg });
     }).catch((error) => {
@@ -230,11 +191,73 @@ export async function checkGameExistById(id: string): Promise<boolean> {
  * @param email -> user email
  * @returns -> true if is the player turn, false otherwise
  */
+//ASSUNZIONI: il pedone che vuole mangiare rimane nella posizione del pedone che ha mangiato
+//IL GIOCATORE 1 HA SEMPRE NERO
+export async function checkMove(email: string, id_game:number, da_x:number,da_y:number,a_x:number,a_y:number ): Promise<boolean>{
+    //esiste un pedone nella posizione iniziale? dax day FATTO
+    //se sì, vedi se il pedone è della squadra del giocatore FATTO
+    //se pedone si muove fuori dal campo FATTO;
+    //se il pedone si può muovere in diagonale per uno spazio: FATTO
+    //i pedoni bianchi si possono muovere solo per righe che scendono di valore di indice(da basso verso alto)FATTO
+    //i pedoni neri al contrario dei bianchi (alto>basso)FATTO
+    //se sono dame possono muoversi in alto e in basso (POTREBBERO NON SERVIRE CONTROLLI)
+    //controlla se dove mi voglio muovere sta una pedina della propria squadra o meno
+    let game: any;
+    let campo: models.Damiera;
+    let status: boolean=false;
+    game= await models.Game.findByPk(id_game,{raw: true});
+    campo=game.board;
+    let dimensione: number=campo.dim
+    let fazioneda: string=campo.damiera[da_x][da_y].faction;//FAZIONE PROPRIO PEDONE
+    let fazionea: string=campo.damiera[a_x][a_y].faction;//FAZIONE PROPRIO PEDONE
+    let isdama: number=campo.damiera[da_x][da_y].dama;//1 è dama, 0 non è dama
+    console.log("DA_X"+da_x);
+    console.log("DA_y"+da_y);
+    console.log("A_X"+a_x);
+    console.log("A_y"+a_y);
+    if(a_x<0 || a_y<0 || da_x<0 || da_y<0){
+        console.log("VALORI POSIZIONALI IMMESSI INVALIDI!");
+        return status;
+    }
+    try{//se cerca di osservare valori oltre quelli stabiliti dall'oggetto va chiaramente in crash, con il catch lo faccio ritornare tra gli errori previsti
+    if (campo.damiera[da_x][da_y].occupied==0){//se non c'è nessun pezzo in quella casella
+        console.log("NON C'E'NESSUN PEZZO IN QUESTA CASELLA!!");
+        return status;
+    } }catch(error){
+        return status;
+    }
+   
+    if ((game.player1==email && fazioneda=="B")||(game.player2==email && fazioneda=="N")){
+        console.log("STAI CERCANDO DI MUOVERE UN PEZZO DELLA SQUADRA AVVERSARIA!");
+        return status;
+    }
+    if (a_x>dimensione || a_y>dimensione){
+        console.log("STAI CERCANDO DI MUOVERTI OLTRE IL CAMPO DI GIOCO!!");
+        return status;
+    }
+    //se ax-dax è =1 oppure è =-1 E se ay-day =1 o= -1 allora va bene ()
+    //criteri incompleti: se la differenza è 1 devo anche assicurarmi che le a siano maggiori delle da
+    //ragionamento opposto per le da: a minori delle da
+    //condizione terribile se si riesce ad esprimere in modo più semplice farlo
 
-export async function checkMove(email: string, id:string, da_x:number,da_y:number,a_x:number,a_y:number ): Promise<boolean>{
-    let status: any;
-    status= await models.Game.findByPk(id,{raw: true});
-    return true;
+    if (((((a_x-da_x)!=1) && a_x>da_x) || (((a_x-da_x)!=-1) && a_x<da_x))&&((((a_y-da_y)!=1) && a_y>da_y) || ((a_y-da_y)!=-1)&& a_y<da_y)){
+        console.log("NON TI STAI MUOVENDO IN DIAGONALE PER SPAZI DI 1!!");
+        return status;
+    }
+    if (fazioneda=="N" && isdama==0 && ((a_x-da_x)!=1)){
+        console.log("MOSSA NON AMMESSA PER PEDONE NERO!");
+        return status;
+    }
+    if (fazioneda=="B" && isdama==0 && ((a_x-da_x)!=-1)){
+        console.log("MOSSA NON AMMESSA PER PEDONE BIANCO!");
+        return status;
+    }
+    if (fazionea==fazioneda){
+        console.log("STAI CERCANDO DI MANGIARE UN TUO COMPAGNO!!");
+        return status;
+    }
+    status=true;
+    return status;
 
 }
 export async function checkPlayerTurnById(id:string, email: string): Promise<boolean> {
@@ -265,122 +288,124 @@ export async function showLeaderboard(sort: string, res: any): Promise<any> {
         res.send(leaderboard);
     }
 }
-
-export async function createMove(email: string, id_game: number, id_pezzo: string, da_x: number, da_y: number, a_x: number, a_y:number, dimensione: number, res: any): Promise<void> {
-
-    let ha_mangiato: any = false;
-//if principale che controlla se va fuori campo
-    if (a_x<dimensione && a_y<dimensione && ((id_pezzo.includes('N') && a_x > da_x) || (id_pezzo.includes('B') && a_x < da_x))) {
-//se non va fuori campo:
-    //numerazione da alto a basso e da sx a dx. i pezzi neri in alto e quelli bassi secendono
-        if(id_pezzo.includes('N') && a_x == da_x+2  && (a_y==da_y+2 || a_y == da_y-2)) {
-            ha_mangiato=true;
-        };
-
-        if(id_pezzo.includes('B') && a_x == da_x-2  && (a_y==da_y-2 || a_y == da_y+2)) {
-            ha_mangiato=true;
-        };
-
-        try {
-            await models.Mossa.create({
-                id_game: id_game,
-                player: email,
-                id_pezzo: id_pezzo,
-                da_x: da_x,
-                da_y: da_y,
-                a_x: a_x,
-                a_y: a_y,
-                ha_mangiato: ha_mangiato
-            });
+//tutti i controlli sulla legittimità della mossa già fatti
+//crea la mossa: aggiorna tabella games e crea record tabella moves FATTO
+//se uno dei due non ha più pezzi, il gioco finisce: aggiornare tabella users e leaderboard
+export async function createMove(email: string, id_game: number, da_x: number, da_y: number, a_x: number, a_y:number, res: any): Promise<void> {
+    let ha_mangiato:boolean=false;
+    let game: any;
+    let campo: models.Damiera;
+    let winner: string="null";
+    game= await models.Game.findByPk(id_game,{raw: true});
+    let finish: Date=new Date;//potrebbe creare problemi
+    let gameover: number=game.in_progress;
+    campo=game.board;
+    let fazioneda: string=campo.damiera[da_x][da_y].faction;//FAZIONE PROPRIO PEDONE
+    let fazionea: string=campo.damiera[a_x][a_y].faction;//FAZIONE pedone avversario
+    let pezzo1: number=game.pieces1;//pezzi neri
+    let pezzo2: number=game.pieces2;//pezzi bianchi
+    let mosse1: number=game.moves1;//contatore mosse da inizio partita di P1
+    let mosse2: number=game.moves2;//contatore mosse da inizio partita di P2
+    let giocatore1: string=game.player1;
+    let giocatore2: string=game.player2;
+    let giocatore: string=game.player_turn;//giocatore di turno
+    //STABILIAMO INNANZITUTTO SE LA CASELLA E' OCCUPATA DA QUALCUNO
+    if(fazionea!=""){
+        if (fazionea!=fazioneda){//un giocatore si appresta a mangiare un pezzo avversario
+            console.log("MANGIAMO!!!");
+            if (email==giocatore1){//nero mangia bianco
+                pezzo2=pezzo2-1;
+                mosse1=mosse1+1;
+                console.log("NERO MANGIA BIANCO!!");
+                giocatore=giocatore2;//mi salvo per il futuro chi è il giocatore del prissimo turno
+                                    //se qui mangia giocatore 1 allora il prossimo turno è di giocatore 2
+            }else if(email==giocatore2){//bianco mangia nero
+                pezzo1=pezzo1-1;
+                mosse2=mosse2+1;
+                console.log("BIANCO MANGIA NERO!!");
+                giocatore=giocatore1;
+            }
+        ha_mangiato=true;
+        }
+    }else{//mi sposto in una casella vuota
+        if (email==giocatore1){//turno giocatore1
+            mosse1=mosse1+1;
+            console.log("NERO SI SPOSTA IN CASELLA VUOTA!!");
+            giocatore=giocatore2;//mi salvo per il futuro chi è il giocatore del prissimo turno
+                                //se qui mangia giocatore 1 allora il prossimo turno è di giocatore 2
+        }else if(email==giocatore2){//mossa giocatore 2
+            mosse2=mosse2+1;
+            console.log("BIANCO SI SPOSTA IN CASELLA VUOTA!!");
+            giocatore=giocatore1;
+        }
+    }
     
-            res.status(200).json({
-                id_game: id_game,
-                player: email,
-                id_pezzo: id_pezzo,
-                da_x: da_x,
-                da_y: da_y,
-                a_x: a_x,
-                a_y: a_y,
-                ha_mangiato: ha_mangiato
-            });
-
-            updateGame(email, id_pezzo, id_game, ha_mangiato, res);
-
+    //stabiliamo l'eventuale vincitore
+    if (pezzo2==0){
+        winner=giocatore1;
+        gameover=1;
+        finish=new Date;
+    }
+    if (pezzo1==0){
+        winner=giocatore2;
+        gameover=1;
+        finish=new Date;
+    }
+    campo.damiera[a_x][a_y]=campo.damiera[da_x][da_y];//la nuova casella assumerà i dati del pezzo nella casella vecchia
+    campo.damiera[da_x][da_y]={//la vecchia casella sarà vuota
+        r: da_x,
+        c: da_y,
+        occupied: 0,
+        occupiedby: "",
+        faction: "",
+        dama: 0 
+    }
+    try{
+        await models.Mossa.create({//inserisco nuovo record di mossa nella tabella mossa
+            id_game: id_game,
+            player: giocatore,
+            id_pezzo: campo.damiera[a_x][a_y].occupiedby,
+            da_x: da_x,
+            da_y: da_y,
+            a_x: a_x,
+            a_y: a_y,
+            ha_mangiato: ha_mangiato
+        });
+        await models.Game.update({//se la partita finisce è da calcolare anche la durata della partita
+            in_progress: gameover,
+            date_end: finish,
+            player_turn: giocatore,
+            moves1: mosse1,
+            moves2: mosse2,
+            winner: winner,
+            pieces1: pezzo1,
+            pieces2: pezzo2,
+            board: campo
+        }, { where: { id_game: id_game } });
+        if(winner!="null"){//abbiamo un vincitore!
+            console.log("ABBIAMO UN VINCITORE!! IL VINCITORE E':"+winner);
+            await models.Users.update({isplaying: 0}, { where: { email: giocatore1 } });//non aggiorna la tabella utenti
+            await models.Users.update({isplaying: 0}, { where: { email: giocatore2 } });
+            utils.updateLeaderboardWin(winner);
+            if (winner==giocatore1) utils.updateLeaderboardLose(giocatore2)
+            else utils.updateLeaderboardLose(giocatore1)
+        }
+        res.status(200).json({
+            id_game: id_game,
+            player: email,
+            id_pezzo: campo.damiera[a_x][a_y].occupiedby,
+            da_x: da_x,
+            da_y: da_y,
+            a_x: a_x,
+            a_y: a_y,
+            ha_mangiato: ha_mangiato
+        }); 
         } catch(error){
             controllerErrors(ErrorEnum.ErrServer, error, res);
         }
-    } 
-//se va fuori campo:
-    else ErrorEnum.ErrorMakeMove;
 };
 
-//assunzione che player 1 ha sempre pezzi neri e player 2 bianchi. Pieces1 è il numero di pezzi neri e pieces2 di quelli bianchi. anche se ha mangiato termina il turno.
-export async function updateGame (email: string, id_pezzo:string, id_game: number, ha_mangiato:boolean, res: any): Promise<void> {
 
-    const todayDate = new Date().toISOString().slice(0, 10);
-
-    let game: any;
-
-    let data_fine : any;
-
-    let winner  : any;
-
-    let in_progress : boolean = true;
-
-    let player1 : string = 'null';
-
-    let player2 : string = 'null';
-
-    //definire se colui che muove (email) è player1 o player2
-    game = await models.Game.findByPk(id_game, { raw: true });
-
-    let moves1: number = game.moves1;
-
-    let moves2: number = game.moves2;
-
-    if (email == game.player1) {
-        player1 = email;
-        moves1 = moves1+1;
-    } else {
-        player2 = email;
-        moves2 = moves2+1;
-    };
-
-    //definire il valore dei pieces 1 e 2
-    let pieces1 = game.pieces1;
-
-    let pieces2 = game.pieces2;
-
-    if (ha_mangiato && id_pezzo.includes('N')) {
-        pieces2=pieces2-1;
-    };
-
-    if (ha_mangiato && id_pezzo.includes('B')) {
-        pieces1=pieces1-1;
-    };
-
-    if (pieces2 == 0) {
-        winner = player1;
-        in_progress = false;
-        data_fine = todayDate;
-    }
-
-    if (pieces1 == 0) {
-        winner = player2;
-        in_progress = false;
-        data_fine = todayDate;
-    }
-
-    //aggiorno il game dopo la mossa
-    models.Game.update({date_end: data_fine, player_turn: email, pieces1:pieces1, pieces2:pieces2, moves1:moves1,  winner:winner, in_progress:in_progress}, { where: { id_game: id_game } })
-        .then(() => {
-            const new_res = new Success().getMsg();
-            res.status(new_res.status).json({ status: new_res.status, message: new_res.msg });
-        })
-        .catch((error) => {
-            controllerErrors(ErrorEnum.ErrServer, error, res);
-        })
-}
 
 export async function showGame(id_game: number, res: any): Promise<any> {
     let game: any;
@@ -409,27 +434,30 @@ export async function showGame(id_game: number, res: any): Promise<any> {
     res.send(gameState);
 }
 
-export async function concede(email: string, id_game:number, res: any): Promise<void> {
+export async function concede(player: string, id_game:number, res: any): Promise<void> {
     let game: any;
-    let leaderboardlost: any;
-    let leaderboardwins: any;
-    let inProgress: number=1;
-    game= models.Game.findByPk(id_game);
-    if(game.player1 == email) {
-        console.log("CHI SI ARRENDE E' PLAYER 2"); //player1 è lo sconfitto
-        leaderboardlost = models.sequelize.query("SELECT * FROM leaderboard WHERE email=" + game[0].player1,
-        {
-            raw: true
-        });
+    let leaderboard1: any;
+    let leaderboard2: any;
+    game= models.Game.findByPk(id_game);//cerco il gioco in questione
+    if (game==null || game==undefined)
+    {console.log("NON TROVA NULLA GAME!");
+        console.log("GAME:"+game);
+        console.log("PLAYER1:"+game.player1);
+        console.log("PLAYER2"+game.player2);
+    }
+    //({where: {[player]: email, in_progress: status}});
+    leaderboard1 = models.Leaderboard.findByPk(game.player1);
 
-        leaderboardwins = models.sequelize.query("SELECT * FROM leaderboard WHERE email !=" + game[0].player2,
-        {
-            raw: true
-        });
+    leaderboard2 = models.Leaderboard.findByPk(game.player2);
+    console.log("LEADERBOARD1 EMAIL:"+leaderboard1.email);
+    console.log("LEADERBOARD2 EMAIL:"+leaderboard2.email);
+    if(game.player1 == player) {
+        console.log("CHI SI ARRENDE E' PLAYER 1"); //player1 è lo sconfitto
+
 
         models.Game.update({abbandono1: true,  winner:game.player2, in_progress:false}, { where: { id_game: id_game } }); 
-        models.Leaderboard.update({dlosses: leaderboardlost[0].dlosses+1}, { where: { email: email } });
-        models.Leaderboard.update({dwins: leaderboardwins[0].dwins+1}, { where: { email: email } })
+        models.Leaderboard.update({dlosses: leaderboard1.dlosses+1, matches:leaderboard1.matches+1}, { where: { email: leaderboard1.email } });
+        models.Leaderboard.update({dwins: leaderboard2.dwins+1, matches:leaderboard2.matches+1 }, { where: { email: leaderboard2.email } })
         .then(() => {
             const new_res = new Success().getMsg();
             res.status(new_res.status).json({ status: new_res.status, message: new_res.msg });
@@ -440,19 +468,9 @@ export async function concede(email: string, id_game:number, res: any): Promise<
 
     } else { //se lo sconfitto è il player2
         console.log("CHI SI ARRENDE E' PLAYER 2");
-        leaderboardlost = models.sequelize.query("SELECT * FROM leaderboard WHERE email=" + game.player2,
-        {
-            raw: true
-        });
-
-        leaderboardwins = models.sequelize.query("SELECT * FROM leaderboard WHERE email !=" + game.player1,
-        {
-            raw: true
-        });
-
-        models.Game.update({abbandono2: true,  winner:game.player1, in_progress:false}, { where: { id_game: id_game } }); 
-        models.Leaderboard.update({dlosses: leaderboardlost[0].dlosses+1}, { where: { email: email } });
-        models.Leaderboard.update({dwins: leaderboardwins[0].dwins+1}, { where: { email: email } })
+        models.Game.update({abbandono2: true,  winner:game.player1, in_progress:false}, { where: { id_game: id_game } });
+        models.Leaderboard.update({dlosses: leaderboard2.dlosses+1, matches: leaderboard2.matches+1}, { where: { email: leaderboard2.email } });
+        models.Leaderboard.update({dwins: leaderboard1.dwins+1, matches: leaderboard1.matches+1}, { where: { email: leaderboard1.email } })
         .then(() => {
             const new_res = new Success().getMsg();
             res.status(new_res.status).json({ status: new_res.status, message: new_res.msg });
@@ -462,6 +480,14 @@ export async function concede(email: string, id_game:number, res: any): Promise<
         })
 
     }
+    models.Users.update({isplaying: 0}, { where: { email: game.player1 } });
+    models.Users.update({isplaying: 0}, { where: { email: game.player2 } })
+    .then(() => {
+        const new_res = new Success().getMsg();
+        res.status(new_res.status).json({ status: new_res.status, message: new_res.msg });
+    }).catch((error) => {
+        controllerErrors(ErrorEnum.ErrServer, error, res);
+    })
 
 }
 export async function getLog(id: number, exportPath: string, format: string, res: any): Promise<any> {
