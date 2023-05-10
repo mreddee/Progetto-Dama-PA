@@ -50,30 +50,32 @@ app.get('/leaderboard', Middleware_CoR.leaderboard, Middleware_CoR.catchError, (
 //a pezzo spostato anche se mangia termina il turno
 //i pedoni se mangiano si spostano nel posto del pezzo che hanno mangiato
 //errori nell'aggiornamento della leaderboard, inoltre non riesce ad aggiornare la tabella user
+//non prende l'errore se la mossa è oltre la damiera FATTO DA TESTARE
+//implementazione meccaniche di dama, il calcolo della data dà degli errori
 app.post('/make-move', Middleware_CoR.authentication, Middleware_CoR.makeMove, Middleware_CoR.catchError, (req: any, res: any) => {
     Controller.updateToken(req.bearer.email, +process.env.MOVE_COST!, res);
     Controller.createMove(req.bearer.email, req.body.id_game, req.body.da_x, req.body.da_y, req.body.a_x, req.body.a_y, res);
 });
 
-//verifica lo stato di una partita specifica per id (NON TROVA LE PARTITE!)
-//da controllare se va bene
+//verifica lo stato di una partita specifica per id 
+//OK!
 app.get('/show-game', Middleware_CoR.authentication, Middleware_CoR.catchError, (req: any, res: any) => {
     Controller.showGame(req.body.id_game, res);
 });
 
 //determina l'abbandono di un giocatore
-//aggiornare lo status di disponibile dei due giocatori alla fine
-//non vede le email dei giocatori da aggiornare le leaderboard
+//OK
+//il calcolo della durata è fatto, ma è errato
 app.post('/concede', Middleware_CoR.authentication, Middleware_CoR.gameState, Middleware_CoR.catchError, (req: any, res: any) => {
     Controller.concede(req.bearer.email, req.body.id_game, res);
 });
 // Route that returns the game log containing all the moves made by players
-//testare
+//sistema funzione PDF, JSON E CSV
 app.get('/game-log', Middleware_CoR.authentication, Middleware_CoR.gameLog, Middleware_CoR.catchError, (req: any, res: any) => {
     Controller.getLog(req.body.id_game, req.body.path, req.body.format, res);
 });
 //creata rotta che restituisce lista giochi fatti entro un certo set di date da un certo utente
-//arriva fino alla query, ma a quanto pare vi è un errore di sintassi SQL
+//arriva fino alla query, ma a quanto pare vi è un errore di sintassi SQL per le date 
 app.get('/games', Middleware_CoR.authentication, Middleware_CoR.userStats, Middleware_CoR.catchError,(req: any, res: any) => {
     Controller.getGames(req.body.email, req.body.date_start, req.body.date_end, res);});
 

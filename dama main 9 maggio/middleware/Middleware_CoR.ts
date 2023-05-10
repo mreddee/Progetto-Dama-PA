@@ -43,14 +43,14 @@ export const beginMatch = [
 
 export const makeMove = [
     Middleware.checkUserExist,
-    Middleware.checkGameExist,
+    Middleware.checkGameRunning,
     Middleware.checkPlayerTurn,
     Middleware.checkGameMove//il check della mossa gliela facciamo fare nella funzione di controllo?
 ]
 
 export const gameState = [
-    Middleware.checkUserExist,
-    Middleware.checkGameExist
+    Middleware.checkUserExist,//gamestate e game log sono uguali
+    Middleware.checkGameRunning
 ]
 
 export const gameLog = [

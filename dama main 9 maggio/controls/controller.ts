@@ -15,7 +15,8 @@ export async function createGame(player1:string, player2:string, dimensione:numb
     let campo: models.Damiera;
     campo=new models.Damiera(dimensione);
     let pieces: number = utils.piecesnumber(dimensione);
-    const todayDate = new Date().toISOString();
+    //toISOstring
+    const todayDate = new Date();
     try {
         //aggiorna lo stato dei giocatori della partita appena creata in occupati
         await models.Users.update({ isplaying: 1 }, { where: { email: player1 } });
@@ -27,8 +28,10 @@ export async function createGame(player1:string, player2:string, dimensione:numb
             date_start: todayDate,
             date_end: null,
             player_turn: player1,
+            duration: 0,
             moves1: 0,
             moves2: 0,
+            movesw: 0,
             winner: null,
             pieces1: pieces,
             pieces2: pieces,
@@ -184,6 +187,13 @@ export async function checkGameExistById(id: string): Promise<boolean> {
     result = await models.Game.findByPk(id, { raw: true });
     return result;
 }
+//controlla se un gioco esiste ed è in corso
+export async function checkGameRunningById(id: number): Promise<boolean> {
+    let result: any;
+    let status: number = 1;
+    result = await models.Game.findOne({where: {id_game: id, in_progress: status}});
+    return result;
+}
 
 /**
  * Check if the player attempting the move can do it
@@ -202,12 +212,16 @@ export async function checkMove(email: string, id_game:number, da_x:number,da_y:
     //i pedoni neri al contrario dei bianchi (alto>basso)FATTO
     //se sono dame possono muoversi in alto e in basso (POTREBBERO NON SERVIRE CONTROLLI)
     //controlla se dove mi voglio muovere sta una pedina della propria squadra o meno
+    let status: boolean=false;
     let game: any;
     let campo: models.Damiera;
-    let status: boolean=false;
     game= await models.Game.findByPk(id_game,{raw: true});
     campo=game.board;
     let dimensione: number=campo.dim
+    if(a_x<0 || a_y<0 || da_x<0 || da_y<0 ||a_x>dimensione || a_y>dimensione || da_y>dimensione || da_x>dimensione){
+        console.log("VALORI POSIZIONALI IMMESSI INVALIDI!");
+        return status;
+    }
     let fazioneda: string=campo.damiera[da_x][da_y].faction;//FAZIONE PROPRIO PEDONE
     let fazionea: string=campo.damiera[a_x][a_y].faction;//FAZIONE PROPRIO PEDONE
     let isdama: number=campo.damiera[da_x][da_y].dama;//1 è dama, 0 non è dama
@@ -215,10 +229,7 @@ export async function checkMove(email: string, id_game:number, da_x:number,da_y:
     console.log("DA_y"+da_y);
     console.log("A_X"+a_x);
     console.log("A_y"+a_y);
-    if(a_x<0 || a_y<0 || da_x<0 || da_y<0){
-        console.log("VALORI POSIZIONALI IMMESSI INVALIDI!");
-        return status;
-    }
+    
     try{//se cerca di osservare valori oltre quelli stabiliti dall'oggetto va chiaramente in crash, con il catch lo faccio ritornare tra gli errori previsti
     if (campo.damiera[da_x][da_y].occupied==0){//se non c'è nessun pezzo in quella casella
         console.log("NON C'E'NESSUN PEZZO IN QUESTA CASELLA!!");
@@ -239,7 +250,7 @@ export async function checkMove(email: string, id_game:number, da_x:number,da_y:
     //criteri incompleti: se la differenza è 1 devo anche assicurarmi che le a siano maggiori delle da
     //ragionamento opposto per le da: a minori delle da
     //condizione terribile se si riesce ad esprimere in modo più semplice farlo
-
+//math.abs() >funzione per i valori assoluti
     if (((((a_x-da_x)!=1) && a_x>da_x) || (((a_x-da_x)!=-1) && a_x<da_x))&&((((a_y-da_y)!=1) && a_y>da_y) || ((a_y-da_y)!=-1)&& a_y<da_y)){
         console.log("NON TI STAI MUOVENDO IN DIAGONALE PER SPAZI DI 1!!");
         return status;
@@ -297,7 +308,7 @@ export async function createMove(email: string, id_game: number, da_x: number, d
     let campo: models.Damiera;
     let winner: string="null";
     game= await models.Game.findByPk(id_game,{raw: true});
-    let finish: Date=new Date;//potrebbe creare problemi
+    let finish: Date=new Date();//potrebbe creare problemi
     let gameover: number=game.in_progress;
     campo=game.board;
     let fazioneda: string=campo.damiera[da_x][da_y].faction;//FAZIONE PROPRIO PEDONE
@@ -339,17 +350,22 @@ export async function createMove(email: string, id_game: number, da_x: number, d
             giocatore=giocatore1;
         }
     }
-    
+    let movesw: number=0;
+    let duration: any;
     //stabiliamo l'eventuale vincitore
     if (pezzo2==0){
         winner=giocatore1;
         gameover=1;
-        finish=new Date;
+        finish=new Date();
+        movesw=mosse1;
+        duration=utils.calcoladurata(finish,game.date_start);
     }
     if (pezzo1==0){
         winner=giocatore2;
         gameover=1;
-        finish=new Date;
+        finish=new Date();
+        movesw=mosse2;
+        duration=utils.calcoladurata(finish,game.date_start);
     }
     campo.damiera[a_x][a_y]=campo.damiera[da_x][da_y];//la nuova casella assumerà i dati del pezzo nella casella vecchia
     campo.damiera[da_x][da_y]={//la vecchia casella sarà vuota
@@ -377,7 +393,9 @@ export async function createMove(email: string, id_game: number, da_x: number, d
             player_turn: giocatore,
             moves1: mosse1,
             moves2: mosse2,
+            movesw: movesw,
             winner: winner,
+            duration: duration,
             pieces1: pezzo1,
             pieces2: pezzo2,
             board: campo
@@ -387,8 +405,8 @@ export async function createMove(email: string, id_game: number, da_x: number, d
             await models.Users.update({isplaying: 0}, { where: { email: giocatore1 } });//non aggiorna la tabella utenti
             await models.Users.update({isplaying: 0}, { where: { email: giocatore2 } });
             utils.updateLeaderboardWin(winner);
-            if (winner==giocatore1) utils.updateLeaderboardLose(giocatore2)
-            else utils.updateLeaderboardLose(giocatore1)
+            if (winner==giocatore1) {await utils.updateLeaderboardLose(giocatore2);}
+            else {await utils.updateLeaderboardLose(giocatore1);}
         }
         res.status(200).json({
             id_game: id_game,
@@ -423,6 +441,8 @@ export async function showGame(id_game: number, res: any): Promise<any> {
         player_turn: game.player_turn,
         moves1: game.moves1,
         moves2: game.moves2,
+        movesw: game.movesw,
+        duration: game.duration,
         winner: game.winner,
         pieces1: game.pieces1,
         pieces2: game.pieces2,
@@ -438,50 +458,28 @@ export async function concede(player: string, id_game:number, res: any): Promise
     let game: any;
     let leaderboard1: any;
     let leaderboard2: any;
-    game= models.Game.findByPk(id_game);//cerco il gioco in questione
-    if (game==null || game==undefined)
-    {console.log("NON TROVA NULLA GAME!");
-        console.log("GAME:"+game);
-        console.log("PLAYER1:"+game.player1);
-        console.log("PLAYER2"+game.player2);
-    }
-    //({where: {[player]: email, in_progress: status}});
-    leaderboard1 = models.Leaderboard.findByPk(game.player1);
-
-    leaderboard2 = models.Leaderboard.findByPk(game.player2);
-    console.log("LEADERBOARD1 EMAIL:"+leaderboard1.email);
-    console.log("LEADERBOARD2 EMAIL:"+leaderboard2.email);
+    let datafine: Date=new Date();
+    console.log(datafine);
+    game=await models.Game.findByPk(id_game);//cerco il gioco in questione
+    let datainizio: Date=game.date_start;
+    leaderboard1 =await models.Leaderboard.findByPk(game.player1);
+    //let email1:string=leaderboard1.email;
+    leaderboard2 =await models.Leaderboard.findByPk(game.player2);
+    let durata: string=utils.calcoladurata(datafine,datainizio)
     if(game.player1 == player) {
         console.log("CHI SI ARRENDE E' PLAYER 1"); //player1 è lo sconfitto
-
-
-        models.Game.update({abbandono1: true,  winner:game.player2, in_progress:false}, { where: { id_game: id_game } }); 
-        models.Leaderboard.update({dlosses: leaderboard1.dlosses+1, matches:leaderboard1.matches+1}, { where: { email: leaderboard1.email } });
-        models.Leaderboard.update({dwins: leaderboard2.dwins+1, matches:leaderboard2.matches+1 }, { where: { email: leaderboard2.email } })
-        .then(() => {
-            const new_res = new Success().getMsg();
-            res.status(new_res.status).json({ status: new_res.status, message: new_res.msg });
-        })
-        .catch((error) => {
-            controllerErrors(ErrorEnum.ErrServer, error, res);
-        })
+        await models.Game.update({abbandono1: 1,  winner:game.player2, in_progress:0,movesw: game.moves2,duration:durata,date_end:datafine}, { where: { id_game: id_game } }); 
+        await models.Leaderboard.update({dlosses: leaderboard1.dlosses+1, matches:leaderboard1.matches+1}, { where: { email: leaderboard1.email } });
+        await models.Leaderboard.update({dwins: leaderboard2.dwins+1, matches:leaderboard2.matches+1 }, { where: { email: leaderboard2.email } })
 
     } else { //se lo sconfitto è il player2
         console.log("CHI SI ARRENDE E' PLAYER 2");
-        models.Game.update({abbandono2: true,  winner:game.player1, in_progress:false}, { where: { id_game: id_game } });
-        models.Leaderboard.update({dlosses: leaderboard2.dlosses+1, matches: leaderboard2.matches+1}, { where: { email: leaderboard2.email } });
-        models.Leaderboard.update({dwins: leaderboard1.dwins+1, matches: leaderboard1.matches+1}, { where: { email: leaderboard1.email } })
-        .then(() => {
-            const new_res = new Success().getMsg();
-            res.status(new_res.status).json({ status: new_res.status, message: new_res.msg });
-        })
-        .catch((error) => {
-            controllerErrors(ErrorEnum.ErrServer, error, res);
-        })
-
+        await models.Game.update({abbandono2: 1,  winner:game.player1, in_progress:0,moves:game.moves1,duration:durata,date_end:datafine}, { where: { id_game: id_game } });
+        await models.Leaderboard.update({dlosses: leaderboard2.dlosses+1, matches: leaderboard2.matches+1}, { where: { email: leaderboard2.email } });
+        await models.Leaderboard.update({dwins:leaderboard1.dwins+1, matches: leaderboard1.matches+1}, { where: { email: leaderboard1.email } })
     }
-    models.Users.update({isplaying: 0}, { where: { email: game.player1 } });
-    models.Users.update({isplaying: 0}, { where: { email: game.player2 } })
+    await models.Users.update({isplaying: 0}, { where: { email: game.player1 } });
+    await models.Users.update({isplaying: 0}, { where: { email: game.player2 } })
     .then(() => {
         const new_res = new Success().getMsg();
         res.status(new_res.status).json({ status: new_res.status, message: new_res.msg });
@@ -529,7 +527,7 @@ export async function getLog(id: number, exportPath: string, format: string, res
 export async function getGames(email: string,date_start: Date, date_end:Date, res: any){
     let games: any;
     let gamesList: any;
-    games=await models.sequelize.query("SELECT * FROM game WHERE date_start>="+date_start+" AND date_start<="+date_end+" AND (player1="+email+" OR player2="+email+")");
+    games=await models.sequelize.query("SELECT * FROM game WHERE date_start>="+date_start+" AND date_start<="+date_end+" AND (player1='"+email+"' OR player2='"+email+"')");
     gamesList={
             status: 200,
             games: gamesList

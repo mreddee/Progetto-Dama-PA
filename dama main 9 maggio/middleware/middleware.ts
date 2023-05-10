@@ -40,8 +40,6 @@ export function checkToken(req: any, res: any, next: any): void {
     const bearerToken = bearerHeader.split(' ')[1]; 
     req.token = bearerToken;
     console.log("checkToken")
-    console.log("req:"+req);
-    console.log("res:"+res);
     next();
   } 
   else {
@@ -58,10 +56,8 @@ export function checkToken(req: any, res: any, next: any): void {
 export function verifyAndAuthenticate(req: any, res: any, next: any): void {
   let decoded = jwt.verify(req.token, process.env.SECRET_KEY!); 
   if (decoded !== null)
+    console.log("VERIFY AND AUTH OK");
     req.bearer = decoded;
-    //console.log("verifyAndAutenticate")
-    //console.log("req:"+req.bearerHeader);
-    //console.log("res:"+res.body);
   next();
 }
 
@@ -245,8 +241,8 @@ export function routeNotFound(req: any, res: any, next: any): void{
 * @param res -> server response
 * @param next -> next middleware
 */
-export function checkRemainingToken(req: any, res: any, next: any): void {
-  Controller.getToken(req.bearer.email, res).then((token) => {
+export async function checkRemainingToken(req: any, res: any, next: any): Promise<void> {
+  await Controller.getToken(req.bearer.email, res).then((token) => {
       if (token >= 0.35) {
         console.log("checkRemainingToken");
         next();
@@ -334,6 +330,24 @@ export function checkGameExist(req: any, res: any, next: any): void {
     }
     else {
       console.log("CONTROLLO ESISTENZA GIOCO FALLITO!")
+      next(ErrorEnum.ErrorIdGame, res);
+    }
+  })
+}
+/**
+* Check if the game exist on DB and its not finished
+* @param req -> client request
+* @param res -> server response
+* @param next -> next middleware
+*/
+export function checkGameRunning(req: any, res: any, next: any): void {
+  Controller.checkGameRunningById(req.body.id_game).then((id) => {
+    if (id) {
+      console.log("checkGameRunning");
+      next();
+    }
+    else {
+      console.log("IL GIOCO E' GIA' TERMINATO!")
       next(ErrorEnum.ErrorIdGame, res);
     }
   })

@@ -13,9 +13,8 @@ export async function updateLeaderboardWin(username: string): Promise<void> {
     let leaderboard: any;
     let numMatch: number;
     let numMatchWin: number;
-
-    const [results, metadata] = await Database.connection().query("SELECT AVG(movesw) FROM game WHERE winner="+ username +" GROUP BY winner"); // Raw query - use array destructuring
-    const mean=results[0]
+    const [results, metadata] = await Database.connection().query("SELECT AVG(movesw) FROM game WHERE winner="+ username); // Raw query - use array destructuring
+    const mean=results[0];
 
     leaderboard = await Leaderboard.findByPk(username);
 
@@ -53,7 +52,6 @@ export async function updateLeaderboardLose(username: string): Promise<void> {
     let leaderboard: any;
     let numMatch: number;
     let numMatchLose: number;
-    let winRatio: number;
 
     leaderboard = await Leaderboard.findByPk(username);
 
@@ -97,7 +95,7 @@ export function exportAsJSON(logMoves: any, exportPath: string) {
     });
 }
 export function exportAsPDF(logMoves: any, exportPath: string){
-    let logMovesJSON = JSON.stringify(logMoves);
+    let logMovesJSON = logMoves.toString();
     const doc = new PDFDocument;
     doc.pipe(fs.createWriteStream(exportPath)); // write to PDF
     doc.pipe(logMovesJSON);                         //inserisce i log nel pdf
@@ -178,7 +176,7 @@ export function piecesnumber(dimensione: number):number{
 }
 
 export async function showUserLimitToken(tokenlimit: number): Promise<any> {
-    let userList = models.sequelize.query("SELECT * FROM users  WHERE token <= '" + tokenlimit + "'",
+    let userList = models.sequelize.query("SELECT * FROM users  WHERE token <="+tokenlimit,
     {
         raw: true
     });
@@ -212,3 +210,18 @@ export async function isBusy(player:string):Promise<number>{
     console.log("ISPLAYING:"+controllo);
     return controllo.isplaying;
 }
+//(data2.getTime()-data.getTime())/60000
+export function calcoladurata(dataf: Date,datai: Date):string{//errore nell'uso della funzione gettime: non la riconosce
+    let durata: string;
+    //var tempo: number = new Date(dataf).getTime() - new Date(datai).getTime();
+    var tempo: number=new Date(dataf).valueOf()-new Date(datai).valueOf();
+    console.log(tempo);
+    //let tempo: number=dataf.getTime()-datai.getTime();//millisecondi
+    let secondi: number=Math.round(tempo/1000); //tempo in secondi
+    let minuti: number=Math.round(tempo/60000); //tempo in minuti
+    let ore: number=Math.round(tempo/3600000); //tempo in ore
+    durata=ore.toString()+":"+minuti.toString()+":"+secondi.toString()
+    return durata;
+}
+//let data: Date=new Date;
+//console.log(data.getTime());

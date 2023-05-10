@@ -28,6 +28,8 @@ CREATE TABLE game (
     player_turn VARCHAR(100),
     moves1 INT,
     moves2 INT,
+    movesw INT,
+    duration VARCHAR(100),
     winner VARCHAR(100),
     pieces1 INT,
     pieces2 INT,
@@ -72,16 +74,9 @@ INSERT INTO users (email, username, isadmin, isplaying, token) VALUES
     ('player3@gmail.com','player3',0,0,10.000),
     ('player4@gmail.com','player4',0,0,10.000);
 
-INSERT INTO game (id_game, player1, player2, in_progress, date_start, date_end, player_turn, moves1, moves2, winner, pieces1, pieces2, abbandono1, abbandono2, dimensione, board) VALUES
-    (1, 'admin@gmail.com', 'player1@gmail.com', 0, '2023-05-06', '2023-05-07', 'admin@gmail.com', 6, 5, 'admin@gmail.com', 1, 0, 0, 0, 4, '{"board":[["/","/","/","/"],["/","/","/","/"],["/","/","/","/"],["/","/","N","/"]]}'),
-    (2, 'player1@gmail.com', 'player2@gmail.com', 0, '2023-05-02', '2023-05-05', 'player1@gmail.com', 5, 4, 'player1@gmail.com', 1, 0, 0, 0, 4, '{"board":[["/","/","B","/"],["/","/","/","/"],["/","/","/","/"],["/","/","/","/"]]}');
-
-
-INSERT INTO moves (id_game, id, player, id_pezzo, da_x, da_y, a_x, a_y, ha_mangiato) VALUES
-    (1, 1, 'admin@gmail.com', '2N', 1, 1, 1, 2, 0),
-    (2, 2, 'player1@gmail.com', '1B', 2, 1, 4, 3, 1);
-
-
 INSERT INTO leaderboard(email, moves_mean, wins, losses, matches, dwins, dlosses) VALUES
     ( 'admin@gmail.com', 12, 8, 2, 50, 5, 0),
     ( 'player1@gmail.com', 15, 12, 4, 32, 2, 2);
+
+
+  

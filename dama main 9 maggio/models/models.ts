@@ -71,6 +71,14 @@ export const Game = sequelize.define('game', {
         type: DataTypes.INTEGER,
         allowNull: false
     },
+    movesw: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+    },
+    duration: {
+        type: DataTypes.STRING(100),
+        allowNull: true
+    },
     winner: {
         type: DataTypes.STRING(100),
         allowNull: true
