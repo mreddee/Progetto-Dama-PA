@@ -4,7 +4,7 @@ Progetto del corso di Programmazione Avanzata
 ## Descrizione del progetto
 Il progetto consiste nello sviluppo di sistema backend per la gestione del gioco della dama. Il sistema prevede sia la possibilità di far interagire due utenti (autenticati mediante JWT) sia la possibilità che più partite siano attive nello stesso momento. Alla creazione si possono scegliere tre configurazioni di griglie (4x4, 6x6, 8x8) che corrispondono, rispettivamente, a tre diverse configurazioni iniziali di partenza. In particolare, si possono creare nuove partite, effettuare mosse, verificare tutte le info relative ad una partita, comprese di statistiche e di classifica e dello storico delle partite giocate. La creazione di una partita e la singola mossa hanno un costo in termini di token, rispettivamente 0.35 e 0.015.
 
-* Esempio Damiera:
+### Esempio Damiera:
 ![InteractionOverview](https://github.com/mreddee/Progetto-Dama-PA/blob/main/damiera%20esempio.jpg)
 
 
@@ -263,7 +263,7 @@ Controller->>Model: Leaderboard.findByPk()
 Model->>Controller: object
 Controller->>Model: Leaderboard.findByPk()
 Model->>Controller: object
-Conttroller->>Utils.calcolodurata()
+Conttroller->>Utils: calcolodurata()
 Utils->>Controller: string
 Controller->>Model: Game.update()
 Controller->>Model: Leaderboard.update()
@@ -384,23 +384,8 @@ Middleware->>Middleware: checkSortMethod()
 Middleware->>Middleware CoR: next()
 Middleware CoR->>Router: next()
 Router->>Controller: showLeaderboard()
-Controller->>Utils.getLeaderboard()
+Controller->>Utils: getLeaderboard()
 Utils->>Controller: string
-Controller->>Client: res.send()
-```
-
-```mermaid
-sequenceDiagram
-autonumber
-Client->>Router: /leaderboard
-Router->>Middleware CoR: app.post()
-Middleware CoR->>Middleware: leaderboard()
-Middleware->>Middleware: checkSortMethod()
-Middleware->>Middleware CoR: next()
-Middleware CoR->>Router: next()
-Router->>Controller: showLeaderboard()
-Controller->>Sequelize Queries: getLeaderboard()
-Sequelize Queries->>Controller: object
 Controller->>Client: res.send()
 ```
 
