@@ -206,7 +206,7 @@ Il payload JSON deve avere la seguente struttura:
 ```mermaid
 sequenceDiagram
 autonumber
-Client->>Router: /game-state
+Client->>Router: /show-game
 Router->>Middleware CoR: app.post()
 Middleware CoR->>Middleware: autentication()
 Middleware->>Middleware: checkHeader()
@@ -235,7 +235,7 @@ Da effettuare tramite token JWT che deve contenere un payload JSON con la seguen
 ```mermaid
 sequenceDiagram
 autonumber
-Client->>Router: /refill
+Client->>Router: /concede
 Router->>Middleware CoR: app.post()
 Middleware CoR->>Middleware: autentication()
 Middleware->>Middleware: checkHeader()
@@ -263,7 +263,7 @@ Controller->>Model: Leaderboard.findByPk()
 Model->>Controller: object
 Controller->>Model: Leaderboard.findByPk()
 Model->>Controller: object
-Conttroller->> Utils.calcolodurata()
+Conttroller->>Utils.calcolodurata()
 Utils->>Controller: string
 Controller->>Model: Game.update()
 Controller->>Model: Leaderboard.update()
@@ -291,7 +291,7 @@ Da effettuare tramite token JWT che deve contenere un payload JSON con la seguen
 ```mermaid
 sequenceDiagram
 autonumber
-Client->>Router: /refill
+Client->>Router: /game-log
 Router->>Middleware CoR: app.post()
 Middleware CoR->>Middleware: autentication()
 Middleware->>Middleware: checkHeader()
@@ -336,7 +336,7 @@ Da effettuare tramite token JWT che deve contenere un payload JSON con la seguen
 ```mermaid
 sequenceDiagram
 autonumber
-Client->>Router: /refill
+Client->>Router: /games
 Router->>Middleware CoR: app.post()
 Middleware CoR->>Middleware: autentication()
 Middleware->>Middleware: checkHeader()
@@ -384,7 +384,7 @@ Middleware->>Middleware: checkSortMethod()
 Middleware->>Middleware CoR: next()
 Middleware CoR->>Router: next()
 Router->>Controller: showLeaderboard()
-Controller->> Utils.getLeaderboard()
+Controller->>Utils.getLeaderboard()
 Utils->>Controller: string
 Controller->>Client: res.send()
 ```
@@ -443,7 +443,7 @@ Da effettuare tramite token JWT che deve contenere un payload JSON con la seguen
 ```mermaid
 sequenceDiagram
 autonumber
-Client->>Router: /refill
+Client->>Router: /show-token-admin
 Router->>Middleware CoR: app.post()
 Middleware CoR->>Middleware: autentication()
 Middleware->>Middleware: checkHeader()
