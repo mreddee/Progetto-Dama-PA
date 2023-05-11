@@ -389,6 +389,21 @@ Utils->>Controller: string
 Controller->>Client: res.send()
 ```
 
+```mermaid
+sequenceDiagram
+autonumber
+Client->>Router: /leaderboard
+Router->>Middleware CoR: app.post()
+Middleware CoR->>Middleware: leaderboard()
+Middleware->>Middleware: checkSortMethod()
+Middleware->>Middleware CoR: next()
+Middleware CoR->>Router: next()
+Router->>Controller: showLeaderboard()
+Controller->>Sequelize Queries: getLeaderboard()
+Sequelize Queries->>Controller: object
+Controller->>Client: res.send()
+```
+
 ## Mostra credito di un utente (/show-token)
 Mediante l'utilizzo di questa rotta si può visualizzare il proprio credito. Questa rotta può essere richiamata dagli utenti autenticati.
 
