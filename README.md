@@ -1,13 +1,8 @@
 # Dama (Progetto PA)
-Progetto del corso di Programmazione Avanzata
+Progetto del corso di Programmazione Avanzata a.a. 2022/2023
 
 ## Descrizione del progetto
-Il progetto consiste nello sviluppo di sistema backend per la gestione del gioco della dama. Il sistema prevede sia la possibilità di far interagire due utenti (autenticati mediante JWT) sia la possibilità che più partite siano attive nello stesso momento. Alla creazione si possono scegliere tre configurazioni di griglie (4x4, 6x6, 8x8) che corrispondono, rispettivamente, a tre diverse configurazioni iniziali di partenza. In particolare, si possono creare nuove partite, effettuare mosse, verificare tutte le info relative ad una partita, comprese di statistiche e di classifica e dello storico delle partite giocate. La creazione di una partita e la singola mossa hanno un costo in termini di token, rispettivamente 0.35 e 0.015.
-
-### Esempio Damiera:
-![InteractionOverview](https://github.com/mreddee/Progetto-Dama-PA/blob/main/damiera%20esempio.jpg)
-
-
+Il progetto consiste nello sviluppo di sistema backend per la gestione del gioco della dama. Il sistema prevede la possibilità di far interagire due utenti (autenticati mediante JWT). Alla creazione si possono scegliere tre configurazioni di griglie (4x4, 6x6, 8x8) che corrispondono, rispettivamente, a tre diverse configurazioni iniziali di partenza. In particolare, si possono creare nuove partite, effettuare mosse, verificare tutte le info relative ad una partita, comprese di statistiche e di classifica e dello storico delle partite giocate. La creazione di una partita e la singola mossa hanno un costo in termini di token, rispettivamente 0.35 e 0.015.
 
 ## Funzioni del sistema
 
@@ -37,8 +32,8 @@ Ogni funzione è associata ad una diversa richiesta HTTP (POST o GET), per alcun
 | GET | /game-log|
 | GET | /games |
 | GET | /leaderboard |
-| POST | /show-token |
-| POST | /show-token-admin |
+| GET | /show-token |
+| GET | /show-token-admin |
 | POST | /refill |
 
 ## Progettazione
@@ -53,7 +48,8 @@ Ogni funzione è associata ad una diversa richiesta HTTP (POST o GET), per alcun
 
 ## Crea una nuova partita (/create-game)
 Mediante l'utilizzo di questa rotta si può creare una nuova partita. Questa rotta può essere richiamata solamente dagli utenti autenticati.
-L'utente autenticato con JWT può iniziare una partita specificando il nome del player 2 e la dimensione della griglia tra le seguenti configurazioni: 4x4, 6x6, 8x8.
+L'utente autenticato con JWT può iniziare una partita specificando il nome del player 2 e la dimensione del lato della damiera tra le seguenti configurazioni: 4, 6 o 8. Il nome del giocatore che crea la partita (il player 1) è preso implicitamente dal bearer token. E' possibile creare una nuova partita solo se entrambi i giocatori sono disoponibili, ovvero non poso impegnati in altre partite. 
+Alla creazione del gioco vengono sottratti 0,35 crediti al giocatore che crea il gioco.
 
 Da effettuare tramite token JWT che deve contenere un payload JSON con la seguente struttura:
 ~~~
@@ -118,8 +114,18 @@ Controller->>Client: res.status().json
 ```
 
 ## Esegui una mossa (/make-move)
-Mediante l'utilizzo di questa rotta si può effettuare una mossa. Questa rotta può essere richiamata solamente dagli utenti autenticati. 
-L'utente autenticato tramite JWT, a partire dall'id del gioco e dalle coordinate iniziali (da_x e da_y), sceglie in quale casella muoversi (a_x e a_y). Sono ammesse solo movimenti in diagonale di una casella e all'interno della dimensione del campo da gioco.
+Mediante l'utilizzo di questa rotta si può effettuare una mossa. Questa rotta può essere richiamata solamente dagli utenti autenticati che partecipano a quella partita.
+L'utente autenticato tramite JWT, a partire dall'id del gioco e dalle coordinate iniziali (da_x e da_y), sceglie in quale casella muoversi (a_x e a_y). Sono ammessi solo movimenti in diagonale di una casella e all'interno della dimensione del campo da gioco. I pedoni possono muoversi solo in avanti: i neri per x crescenti e i bianchi per x decrescenti. Il sistema prevede che quando un pedone arriva al lato opposto diventi dama e che potrà quindi muoversi anche all'indietro. La partita termina quando uno dei due giocatori si arrende (/concede) oppure finisce i suoi pezzi.
+A ogni mossa vengono sottratti 0,015 crediti all'utente che effettua il turno.
+
+Le assunzioni fatte sono: 
+- il player 1 ha sempre i pezzi neri e inizia per primo;
+- i pezzi si muovono sempre e solo nella casella diagonale adiacente;
+- quando un pezzo avversario viene catturato, il pedone che lo mangia si posiziona al suo posto;
+- a ogni mossa andata a buon fine il turno passa automaticamente all'avversario.
+
+### Esempio Damiera 4x4:
+![InteractionOverview](https://github.com/mreddee/Progetto-Dama-PA/blob/main/damiera%20esempio.jpg)
 
 La rotta si deve effettuare tramite token JWT che deve contenere un payload JSON con la seguente struttura:
 ~~~
@@ -192,7 +198,7 @@ Controller->>Client: res.status().json
 
 ## Mostra lo stato di una partita (/show-game) 
 Mediante l'utilizzo di questa rotta si può vedere lo stato di una partita.
-L'utente autenticato tramite JWT può vedere lo stato di una partita semplicemente inserendo l'id della partita in corso o terminata. Questa rotta può essere richiamata solamente dagli utenti autenticati.
+L'utente autenticato tramite JWT può vedere lo stato di una partita semplicemente inserendo l'id della partita in corso o terminata.
 
 Il payload JSON deve avere la seguente struttura:
 ~~~
@@ -221,7 +227,7 @@ Controller->>Client: res.send()
 ```
 
 ## Datermina l'abbandono di una partita da parte di un utente (/concede) 
-Mediante questa rotta si va a determinare l'abbandono di una partita, dato il suo id univoco, da parte di un utente. Si aggiornano i campi dei modelli Game, Leaderboard e Users. Può essere chiamata solo da utenti autenticati tramite JWT.
+Mediante questa rotta si va a determinare l'abbandono di una partita, dato il suo id univoco, da parte di un utente. Si aggiornano i campi dei modelli Game (stato della partita), Leaderboard (statistiche dei giocatori) e Users (gli utenti ritornano disponibili per altre partite). Può essere chiamata solo da utenti autenticati tramite JWT.
 
 Da effettuare tramite token JWT che deve contenere un payload JSON con la seguente struttura:
 ~~~
@@ -275,7 +281,7 @@ Factory->>Controller: json
 Controller->>Client: res.status().json
 ```
 ## Mostra lo storico delle mosse di una data partita (/game-log)
-Mediante l'utilizzo di questa rotta si può vedere lo storico delle mosse di una partita e di salvarlo nel path specificato sottoforma di JSON, CSV o PDF. Questa rotta può essere richiamata solamente dagli utenti autenticati tramite JWT selezionando, quindi, l'id del gioco, il path e il formato desiderati.
+Mediante l'utilizzo di questa rotta si può vedere lo storico delle mosse di una partita e salvarlo nel path specificato, in formato JSON, CSV o PDF. Questa rotta può essere richiamata solamente dagli utenti autenticati tramite JWT selezionando, quindi, l'id del gioco, il path e il formato desiderati (in maiuscolo o minuscolo). Il path fa riferimento all'immagine di Node creata da Docker.
 
 Da effettuare tramite token JWT che deve contenere un payload JSON con la seguente struttura:
 ~~~
@@ -390,9 +396,8 @@ Controller->>Client: res.send()
 ```
 
 ## Mostra credito di un utente (/show-token)
-Mediante l'utilizzo di questa rotta si può visualizzare il proprio credito. Questa rotta può essere richiamata dagli utenti autenticati.
-
-Da effettuare solo tramite token JWT.
+Mediante l'utilizzo di questa rotta si può visualizzare il proprio credito. Questa rotta può essere richiamata dagli utenti autenticati tramite JWT.
+Non prevede un body nelle richieste.
 
 ### Sequence Diagram di /show-token
 
@@ -428,7 +433,7 @@ Controller->>Client: res.status().json
 ```
  
 ## Mostra credito di un utente (/show-token-admin)
-Mediante l'utilizzo di questa rotta si mostra la lista degli utenti con credito residuo inferiore al valore scelto. Questa rotta può essere richiamata dagli utenti autenticati con ruolo admin.
+Mediante l'utilizzo di questa rotta si mostra la lista degli utenti con credito residuo inferiore al valore scelto. Questa rotta può essere richiamata dagll'utente autenticato con ruolo di admin.
 
 Da effettuare tramite token JWT che deve contenere un payload JSON con la seguente struttura:
 ~~~
@@ -475,7 +480,7 @@ Controller->>Client: res.status().json
 ```
 
 ## Ricarica il credito di un utente (/refill)
-Mediante l'utilizzo di questa rotta si può settare il credito di un utente. Questa rotta può essere richiamata solamente dagli utenti autenticati, con ruolo admin.
+Mediante l'utilizzo di questa rotta si può impostare il credito di un utente. Questa rotta può essere richiamata solamente dagli utenti autenticati, con ruolo admin.
 
 Da effettuare tramite token JWT che deve contenere un payload JSON con la seguente struttura:
 ~~~
@@ -525,34 +530,29 @@ Controller->>Client: res.status().json
 ## Pattern utilizzati
 
 ### Factory Method:
-Il **factory method** è un pattern di progettazione creazionale che fornisce un’interfaccia per la creazione di oggetti in una superclasse, ma consente alle sottoclassi di modificare il tipo di oggetti che verranno creati.  
-Nel nostro progetto abbiamo utilizzato questo pattern per generare diverse classi di errori e messaggi di stato in base alle esigenze.  
-Il pattern permette, dunque, di rimpiazzare la creazione diretta degli oggetti delle classi di interesse con una più generica chiamata al factory method. Il factory method instanzierà l'oggetto corretto in base all'argomento che riceverà in input. Il vantaggio principale consiste nel poter fare l'override del factory method nelle sotto-classi in modo da specializzarne il comportamento.
+Il **factory method** è un pattern di progettazione creazionale che fornisce un’interfaccia per la creazione di oggetti in una superclasse, ma consente alle sottoclassi di modificare il tipo di oggetti che verranno creati.
+Abbiamo implementato questo pattern per la gestione degli errori: in caso di errore rimandiamo a una funzione generica di errore, che a sua volta rimanda all'errore specifico.
 
 ### Singleton
-Il **singleton** è un design pattern creazionale che ha lo scopo di garantire che di una determinata classe venga creata una e una sola istanza, e di fornire un punto di accesso globale a tale istanza.  
-L'uso più comune di tale pattern è quando si vuole garantire e, allo stesso tempo, controllare l'accesso ad una risorsa condivisa, come ad esempio una connessione oppure un file. 
-Nel nostro progetto viene utilizzato per generare la connesione al database. Difatti, non appena una porzione di codice vorrà accedere al database, verrà istanziato il singleton. Tuttavia, non appena succesive chiamate tenteranno di accedere nuovamente al database, invece che instanziare una nuova connessione verrà resituita al chiamante l'istanza del singleton già creata. Ciò permette di rispamiare risorse computazionali, dato che mantenere attive delle connessioni inutilmente è "costoso".
+Il **singleton** è un design pattern creazionale che ha lo scopo di garantire che di una determinata classe venga creata una e una sola istanza, e di fornire un punto di accesso globale a tale istanza.
+Nel nostro contesto viene uusato per creare una sola istanza di connessione al database.
 
 ### Chain Of Responsibility
 La **catena di responsabilità** è un pattern comportamentale che consente di passare le richieste lungo una catena di gestori. Alla ricezione di una richiesta, ciascun handler decide di elaborare la richiesta o di passarla al successivo handler della catena.  
-È molto simile ad un decoratore ma a differenza di quest’ultimo, la catena di responsabilità può essere interrotta.  
-La Catena di Responsabilità è formata da degli handler (funzioni o metodi), che hanno lo scopo di verificare se quello che gli viene passato soddisfa o meno dei criteri. Se il criterio è soddisfatto, non si ritorna, come avveniva nel Proxy, ma si va avanti passando il controllo all’handler successivo.  
-Le funzioni middleware sono funzioni che hanno accesso all'oggetto richiesta (req), all'oggetto risposta (res) e alla successiva funzione middleware nel ciclo richiesta-risposta dell'applicazione. La funzione middleware successiva è comunemente indicata da una variabile denominata next.  
-Nel progetto utilizziamo la catena di responsabilità insieme al middleware per verificare che per ciascuna delle operazioni che si vogliono compiere siano rispettati tutti i requisiti, se così non fosse il middleware che non viene rispettato segnalerà l'errore opportuno.
+Nel nostro caso è utilizzato per controllare le richieste passandone la verifica tra diversi middleware, ognuno dei quali è specializzato in un controllo differente.
 
 ## Avviare il progetto:
 Il progetto può essere avviato usando **Docker**.
 
 Steps:
-1. Clonare repository
-2. Posizionarsi nella directory del repository appena clonato
-3. Digitare ```docker compose up```
+1. Clonare repository;
+2. Posizionarsi nella directory del repository appena clonato;
+3. Digitare ```docker compose up```;
 4. Il programma è in esecuzione nel container docker.
 
 ## Testing
-Si può testare il progetto eseguendo una serie di test predefiniti, per fare ciò occorre importare all'interno di Postman le due collection presenti nella cartella **postman_collections** all'interno di questo repository.   
-I token **JWT**, sono stati generati, utilizzando JWT.IO, tramite la chiave ```secretkey```.  
+Si può testare il progetto eseguendo una serie di test predefiniti, importando all'interno di Postman la collection presente nella cartella **dama.postman_collections** all'interno di questo repository.   
+I token **JWT**, sono stati generati, utilizzando JWT.IO, tramite la chiave ```secretkey``` con l'algoritmo HS384.
 
 ## Autori
 #### Giannelli Edoardo
