@@ -40,11 +40,11 @@ Ogni funzione è associata ad una diversa richiesta HTTP (POST o GET), per alcun
 
 ### Use Case Diagram
 
-![UseCase](https://github.com/mreddee/Progetto-Dama-PA/blob/main/Schema%20attori.jpg)
+![UseCase]([https://github.com/mreddee/Progetto-Dama-PA/blob/main/Schema%20attori.jpg](https://github.com/mreddee/Progetto-Dama-PA/blob/main/dama%20main%2012%20maggio%202.0/immagini/Schema%20attori.jpg))
 
 ### Interaction Overview Diagram
 
-![InteractionOverview](https://github.com/mreddee/Progetto-Dama-PA/blob/main/Interaction%20Overview%20Diagram.jpg)
+![InteractionOverview]([https://github.com/mreddee/Progetto-Dama-PA/blob/main/Interaction%20Overview%20Diagram.jpg](https://github.com/mreddee/Progetto-Dama-PA/blob/main/dama%20main%2012%20maggio%202.0/immagini/Interaction%20Overview%20Diagram.jpg))
 
 ## Crea una nuova partita (/create-game)
 Mediante l'utilizzo di questa rotta si può creare una nuova partita. Questa rotta può essere richiamata solamente dagli utenti autenticati.
@@ -126,7 +126,7 @@ Le assunzioni fatte sono:
 - a ogni mossa andata a buon fine il turno passa automaticamente all'avversario.
 
 ### Esempio Damiera 4x4:
-![InteractionOverview](https://github.com/mreddee/Progetto-Dama-PA/blob/main/damiera%20esempio.jpg)
+![InteractionOverview]([https://github.com/mreddee/Progetto-Dama-PA/blob/main/damiera%20esempio.jpg](https://github.com/mreddee/Progetto-Dama-PA/blob/main/dama%20main%2012%20maggio%202.0/immagini/damiera%20esempio.jpg))
 
 La rotta si deve effettuare tramite token JWT che deve contenere un payload JSON con la seguente struttura:
 ~~~
