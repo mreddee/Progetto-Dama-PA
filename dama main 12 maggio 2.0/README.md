@@ -40,7 +40,7 @@ Ogni funzione è associata ad una diversa richiesta HTTP (POST o GET), per alcun
 
 ### Use Case Diagram
 
-![UseCase](dama main 12 maggio 2.0/immagini/Interaction Overview Diagram.jpg](https://github.com/mreddee/Progetto-Dama-PA/blob/main/dama%20main%2012%20maggio%202.0/immagini/Schema%20attori.jpg)
+![UseCase](https://github.com/mreddee/Progetto-Dama-PA/blob/main/dama%20main%2012%20maggio%202.0/immagini/Schema%20attori.jpg)
 
 ### Interaction Overview Diagram
 
