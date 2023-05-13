@@ -127,7 +127,7 @@ Le assunzioni fatte sono:
 - a ogni mossa andata a buon fine il turno passa automaticamente all'avversario.
 
 ### Esempio Damiera 4x4:
-![InteractionOverview](https://github.com/mreddee/Progetto-Dama-PA/blob/main/damiera%20esempio.jpg)
+![InteractionOverview](https://github.com/mreddee/Progetto-Dama-PA/blob/main/dama%20root/immagini/damiera%20esempio.jpg)
 
 La rotta si deve effettuare tramite token JWT che deve contenere un payload JSON con la seguente struttura:
 ~~~
