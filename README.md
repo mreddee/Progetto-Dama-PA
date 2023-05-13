@@ -46,7 +46,7 @@ Ogni funzione è associata ad una diversa richiesta HTTP (POST o GET), per alcun
 
 ### Interaction Overview Diagram
 
-![InteractionOverview](https://github.com/mreddee/Progetto-Dama-PA/blob/main/Interaction%20Overview%20Diagram.jpg](https://github.com/mreddee/Progetto-Dama-PA/blob/main/Interaction%20Overview.jpg)
+![InteractionOverview](https://github.com/mreddee/Progetto-Dama-PA/blob/main/Interaction%20Overview.jpg)
 
 ## Crea una nuova partita (/create-game)
 Mediante l'utilizzo di questa rotta si può creare una nuova partita. Questa rotta può essere richiamata solamente dagli utenti autenticati.
