@@ -12,9 +12,10 @@ Il progetto consiste nello sviluppo di sistema backend per la gestione del gioco
 | Esegue una mossa | User |
 | Mostra lo stato di una partita | User |
 | Determina l'abbandono di una partita da parte di un utente | User |
-| Mostra lo storico delle mosse di una data partita | User |
-| Mostra lo storico delle partite in un dato intervallo | User |
-| Mostra la classifica dei giocatori ordinata | General |
+| Mostra lo storico delle mosse di una data partita e ne permette l'esportazione su file | User |
+| Mostra lo storico delle partite in un dato intervallo ordinate in base alla data e ne permette l'esportazione su file | User |
+| Mostra lo storico delle partite ordinate in base al numero di mosse totali e ne permette l'esportazione su file | User |
+| Mostra la classifica dei giocatori ordinata in base alle vittorie | General |
 | Mostra il credito rimasto di un utente | User | 
 | Mostra la lista degli utenti con credito residuo inferiore al valore scelto | Admin |
 | Ricarica il credito di un utente | Admin |
@@ -30,7 +31,8 @@ Ogni funzione è associata ad una diversa richiesta HTTP (POST o GET), per alcun
 | GET | /show-game |
 | POST | /concede |
 | GET | /game-log|
-| GET | /games |
+| GET | /games-per-date |
+| GET | /games-per-moves |
 | GET | /leaderboard |
 | GET | /show-token |
 | GET | /show-token-admin |
@@ -280,7 +282,7 @@ Controller->>Factory: Success().getMsg()
 Factory->>Controller: json
 Controller->>Client: res.status().json
 ```
-## Mostra lo storico delle mosse di una data partita (/game-log)
+## Mostra lo storico delle mosse di una data partita e ne permette l'esportazione su file (/game-log)
 Mediante l'utilizzo di questa rotta si può vedere lo storico delle mosse di una partita e salvarlo nel path specificato, in formato JSON, CSV o PDF. Questa rotta può essere richiamata solamente dagli utenti autenticati tramite JWT selezionando, quindi, l'id del gioco, il path e il formato desiderati (in maiuscolo o minuscolo). Il path fa riferimento all'immagine di Node creata da Docker.
 
 Da effettuare tramite token JWT che deve contenere un payload JSON con la seguente struttura:
@@ -326,29 +328,33 @@ Controller->>Utils: exposrtAsPDF()
 Controller->>Client: res.send()
 ```
 
-## Mostra lo storico delle partite in un dato intervallo (/games)
-Mediante l'utilizzo di questa rotta si può vedere lo storico delle mosse di un giocatore tra la data finale e iniziale specificate. Questa rotta può essere richiamata solamente dagli utenti autenticati tramite JWT.
+## Mostra lo storico delle partite in un dato intervallo e ne permette l'esportazione su file (/games-per-date)
+Mediante l'utilizzo di questa rotta si può vedere lo storico delle mosse di un giocatore tra la data finale e iniziale specificate. Permette anche l'ordinamente in ordine crescente (asc) o decrescente (desc) in base alla date e l'esportazione nei formati JSON, CSV o PDF Questa rotta può essere richiamata solamente dagli utenti autenticati tramite JWT.
 
 Da effettuare tramite token JWT che deve contenere un payload JSON con la seguente struttura:
 ~~~
 {
     "email": "player1@gmail.com",
     "date_start": "2023-06-01",
-    "date_end": "2023-07-01"
+    "date_end": "2023-07-01", 
+    "sort": "asc",
+    "path": "/usr/src/app",
+    "format": "CSV"
 }
 ~~~
 
-### Sequence Diagram di /games
+### Sequence Diagram di /games-per-date
 ```mermaid
 sequenceDiagram
 autonumber
-Client->>Router: /games
+Client->>Router: /games-per-date
 Router->>Middleware CoR: app.post()
 Middleware CoR->>Middleware: autentication()
 Middleware->>Middleware: checkHeader()
 Middleware->>Middleware: checkToken()
 Middleware->>Middleware: verifyAndAuthenticate()
 Middleware->>Middleware CoR: next()
+Middleware CoR->>Middleware: userStats()
 Middleware CoR->>Middleware: checkUserExist()
 Middleware->>Controller: checkUser()
 Controller->>Model: Users.findByPk()
@@ -356,13 +362,66 @@ Model->>Controller: object
 Controller->>Middleware: result: boolean
 Middleware->>Middleware: checkDate()
 Middleware->>Middleware CoR: next()
+Middleware CoR->>Middleware: gameLog2()
+Middleware CoR->>Middleware: checkUserExist()
+Middleware->>Controller: checkUser()
+Controller->>Model: Users.findByPk()
+Model->>Controller: object
+Controller->>Middleware: result: boolean
+Middleware->>Middleware CoR: next()
 Middleware CoR->>Router: next()
-Router->>Controller: getGames()
+Router->>Controller: getGamesPerDate()
+Controller->>Model: Game.findAll()
+Model->>Controller: object
+Controller->>Utils: exposrtAsJSON()
+Controller->>Utils: exposrtAsCSV()
+Controller->>Utils: exposrtAsPDF()
+Controller->>Client: res.send()
+```
+
+## Mostra lo storico delle partite ordinate in base al numero di mosse totali e ne permette l'esportazione su file (/games-per-moves)
+Mediante l'utilizzo di questa rotta si può vedere lo storico delle mosse di un giocatore ordinate in ordine crescente (asc) o decrescente (desc) in base al numero di mosse totali. Ne permette anche l'esportazione nei formati JSON, CSV o PDF Questa rotta può essere richiamata solamente dagli utenti autenticati tramite JWT.
+
+Da effettuare tramite token JWT che deve contenere un payload JSON con la seguente struttura:
+~~~
+{
+    "email": "player1@gmail.com",
+    "sort": "asc",
+    "path": "/usr/src/app",
+    "format": "CSV"
+}
+~~~
+
+### Sequence Diagram di /games-per-moves
+```mermaid
+sequenceDiagram
+autonumber
+Client->>Router: /games-per-moves
+Router->>Middleware CoR: app.post()
+Middleware CoR->>Middleware: autentication()
+Middleware->>Middleware: checkHeader()
+Middleware->>Middleware: checkToken()
+Middleware->>Middleware: verifyAndAuthenticate()
+Middleware->>Middleware CoR: next()
+Middleware CoR->>Middleware: gameLog2()
+Middleware CoR->>Middleware: checkUserExist()
+Middleware->>Controller: checkUser()
+Controller->>Model: Users.findByPk()
+Model->>Controller: object
+Controller->>Middleware: result: boolean
+Middleware->>Middleware CoR: next()
+Middleware CoR->>Router: next()
+Router->>Controller: getGamesPerDate()
+Controller->>Model: Game.findAll()
+Model->>Controller: object
+Controller->>Utils: exposrtAsJSON()
+Controller->>Utils: exposrtAsCSV()
+Controller->>Utils: exposrtAsPDF()
 Controller->>Client: res.send()
 ```
 
 ## Mostra la classifica dei giocatori ordinata (/leaderboard)
-Mediante l'utilizzo di questa rotta si può vedere la classifica ordinata in modo crescente o descrescente. Questa rotta è pubblica.
+Mediante l'utilizzo di questa rotta si può vedere la classifica ordinata in modo crescente o descrescente in base al numero di vittorie (non di default). Questa rotta è pubblica.
 
 Da effettuare con un payload JSON con la seguente struttura:
 * Classifica decrescente
