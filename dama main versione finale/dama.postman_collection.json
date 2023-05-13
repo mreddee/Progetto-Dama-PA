@@ -134,7 +134,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"email\": \"player1@gmail.com\",\r\n    \"token\": 0\r\n}",
+					"raw": "{\r\n    \"email\": \"player1@gmail.com\",\r\n    \"token\": 80\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -163,62 +163,6 @@
 						{
 							"key": "token",
 							"value": "eyJhbGciOiJIUzM4NCIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InBsYXllcjFAZ21haWwuY29tIn0.eT3wgp7y9aaexM9cSEJoaRU-jADVOaEk5cYepKMffIKx_ji-V4a0NgXh6rbEHbBe",
-							"type": "string"
-						}
-					]
-				},
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "localhost:3000/show-token",
-					"host": [
-						"localhost"
-					],
-					"port": "3000",
-					"path": [
-						"show-token"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "localhost:3000/show-token: player2",
-			"request": {
-				"auth": {
-					"type": "bearer",
-					"bearer": [
-						{
-							"key": "token",
-							"value": "eyJhbGciOiJIUzM4NCIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiZW1haWwiOiJwbGF5ZXIyQGdtYWlsLmNvbSJ9.4NCvzI8HkTd2FOxZTSLTR4xh-jlo6lEE-0ddS1DqzCV0QNXwQc-4EjSv11fZ7xdC",
-							"type": "string"
-						}
-					]
-				},
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "localhost:3000/show-token",
-					"host": [
-						"localhost"
-					],
-					"port": "3000",
-					"path": [
-						"show-token"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "localhost:3000/show-token: player 3",
-			"request": {
-				"auth": {
-					"type": "bearer",
-					"bearer": [
-						{
-							"key": "token",
-							"value": "eyJhbGciOiJIUzM4NCIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiZW1haWwiOiJwbGF5ZXIzQGdtYWlsLmNvbSJ9.DsVmLoafOeTKR1BOK-_VZSH3WRv47i6vGcT3lMDoEezp7l4iCKxgVdpwA6nZqR8T",
 							"type": "string"
 						}
 					]
@@ -375,7 +319,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"id_game\":1\r\n}",
+					"raw": "{\r\n    \"id_game\":2\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -455,7 +399,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"id_game\": 1,\r\n    \"path\": \"/usr/src/app\",\r\n    \"format\": \"CSV\"\r\n}",
+					"raw": "{\r\n    \"id_game\": 3,\r\n    \"path\": \"/usr/src/app\",\r\n    \"format\": \"CSV\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -495,7 +439,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"id_game\": 1,\r\n    \"path\": \"/usr/src/app\",\r\n    \"format\": \"JSON\"\r\n}",
+					"raw": "{\r\n    \"id_game\": 3,\r\n    \"path\": \"/usr/src/app\",\r\n    \"format\": \"JSON\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -532,7 +476,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"id_game\":2,\r\n    \"da_x\":0,\r\n    \"da_y\":2,\r\n    \"a_x\":1,\r\n    \"a_y\":3\r\n}",
+					"raw": "{\r\n    \"id_game\":3,\r\n    \"da_x\":0,\r\n    \"da_y\":2,\r\n    \"a_x\":1,\r\n    \"a_y\":1\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -569,7 +513,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"id_game\":2,\r\n    \"da_x\":2,\r\n    \"da_y\":2,\r\n    \"a_x\":1,\r\n    \"a_y\":3\r\n}",
+					"raw": "{\r\n    \"id_game\":3,\r\n    \"da_x\":2,\r\n    \"da_y\":2,\r\n    \"a_x\":1,\r\n    \"a_y\":1\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -609,7 +553,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"id_game\":2\r\n}",
+					"raw": "{\r\n    \"id_game\":3\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -624,6 +568,46 @@
 					"port": "3000",
 					"path": [
 						"show-game"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "localhost:3000/games-per-moves: JSON, player1, desc",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzM4NCIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InBsYXllcjFAZ21haWwuY29tIn0.eT3wgp7y9aaexM9cSEJoaRU-jADVOaEk5cYepKMffIKx_ji-V4a0NgXh6rbEHbBe",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\": \"player1@gmail.com\",\r\n     \"sort\": \"desc\",\r\n    \"path\": \"/usr/src/app\",\r\n    \"format\": \"JSON\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:3000/games-per-moves",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"games-per-moves"
 					]
 				}
 			},
@@ -690,6 +674,46 @@
 				"body": {
 					"mode": "raw",
 					"raw": "{\r\n    \"email\": \"player1@gmail.com\",\r\n     \"date_start\": \"2023-05-01\",\r\n    \"date_end\": \"2023-06-01\",\r\n    \"sort\": \"asc\",\r\n    \"path\": \"/usr/src/app\",\r\n    \"format\": \"JSON\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:3000/games-per-date",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"games-per-date"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "localhost:3000/games-per-date: JSON, player1, desc",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzM4NCIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InBsYXllcjFAZ21haWwuY29tIn0.eT3wgp7y9aaexM9cSEJoaRU-jADVOaEk5cYepKMffIKx_ji-V4a0NgXh6rbEHbBe",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\": \"player1@gmail.com\",\r\n     \"date_start\": \"2023-05-01\",\r\n    \"date_end\": \"2023-06-01\",\r\n    \"sort\": \"desc\",\r\n    \"path\": \"/usr/src/app\",\r\n    \"format\": \"JSON\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"

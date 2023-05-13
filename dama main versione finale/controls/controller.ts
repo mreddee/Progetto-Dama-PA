@@ -122,11 +122,11 @@ export async function checkUser(email: string, res: any): Promise<boolean> {
  * @param email 
  * @param res 
  */
-export function showToken(email: string, res: any): void {
-    console.log(models.Users.findByPk(email, { raw: true }));
-    models.Users.findByPk(email, { raw: true }).then(() => {
+export async function showToken(email: string, res: any): Promise<void> {
+    await models.Users.findByPk(email,{raw: true})
+    .then((results: any) => {
         const new_res = new Success().getMsg();
-        res.status(new_res.status).json({ status: new_res.status, message: new_res.msg });
+        res.status(new_res.status).json({ status: new_res.status,results:results.token, message: new_res.msg });
     }).catch((error) => {
         controllerErrors(ErrorEnum.ErrServer, error, res);
     })
@@ -167,7 +167,6 @@ export async function getRole(email: string, res: any): Promise<string> {
         controllerErrors(ErrorEnum.ErrServer, error, res);
         
     }
-    console.log(result.email);
     return result.email;
 }
 /**
